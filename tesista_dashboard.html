@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SISPROT - Panel del Tesista</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body {
+      background: #f4f4f4;
+      font-family: "Segoe UI", sans-serif;
+      font-size: 0.85rem;
+    }
+
+    .sidebar {
+      height: 100vh;
+      width: 250px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: linear-gradient(to bottom, #154172, #5a8fc2);
+      color: white;
+      transition: all 0.4s ease;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      padding-top: 10px;
+    }
+
+    .sidebar.collapsed {
+      width: 80px;
+      align-items: center;
+    }
+
+    .sidebar .toggle-sidebar {
+      display: flex;
+      align-items: center;
+      color: white;
+      padding: 15px 20px;
+      text-decoration: none;
+      font-size: 20px;
+      width: 100%;
+      background: transparent;
+      border: none;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar.collapsed .toggle-sidebar {
+      justify-content: center;
+      padding: 15px 0;
+    }
+
+    .sidebar.collapsed .toggle-sidebar .sidebar-text {
+      display: none;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      color: white;
+      padding: 15px 20px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      font-size: 18px;
+      width: 100%;
+    }
+
+    .sidebar a i {
+      font-size: 26px;
+      width: 40px;
+      text-align: center;
+    }
+
+    .sidebar.collapsed a {
+      justify-content: center;
+      padding: 15px 0;
+    }
+
+    .sidebar.collapsed a i {
+      margin: 0 auto;
+    }
+
+    .sidebar.collapsed .sidebar-text {
+      display: none;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+
+    .content {
+      margin-left: 250px;
+      padding: 20px;
+      transition: margin-left 0.4s ease;
+    }
+
+    .content.collapsed {
+      margin-left: 80px;
+    }
+
+    .navbar {
+      margin-left: 250px;
+      background-color: #ffffff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: margin-left 0.4s ease;
+    }
+
+    .navbar.collapsed {
+      margin-left: 80px;
+    }
+
+    .navbar .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .navbar .user-name {
+      text-align: right;
+    }
+
+    .navbar .user-name small {
+      display: block;
+      color: #888;
+    }
+
+    .logo {
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    .dashboard-section {
+      display: none;
+    }
+
+    .dashboard-section.active {
+      display: block;
+    }
+
+    .user-role {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .logout-icon {
+      font-size: 25px;
+      color: #dc3545;
+    }
+
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 80px;
+        align-items: center;
+      }
+
+      .sidebar .sidebar-text {
+        display: none;
+      }
+
+      .sidebar a {
+        justify-content: center;
+        padding: 15px 0;
+      }
+
+      .sidebar a i {
+        margin: 0 auto;
+      }
+
+      .navbar,
+      .content {
+        margin-left: 80px !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px;
+        gap: 10px;
+      }
+
+      .navbar .user-info {
+        align-self: stretch;
+        justify-content: space-between;
+        flex-direction: row;
+      }
+
+      .navbar .user-name {
+        text-align: right;
+      }
+    }
+
+    .jurado-box {
+      min-height: 160px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+    }
+
+    .jurado-box p:last-child {
+      margin-top: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const dni = urlParams.get('dni');
+
+    const tesistas = {
+      '74599302': 'Wendy Aliaga Piña',
+      '76132264': 'Alicia Cordova Roman',
+      '72322598': 'Leslye Anabel Castillo Ramos',
+      '71272935': 'Sabrina Victoria Pinedo Cumapa'
+    };
+    const nombreTesista = tesistas[dni] || 'Tesista';
+    window.addEventListener('DOMContentLoaded', () => {
+      const nombreElemento = document.getElementById('nombreTesista');
+      if (nombreElemento) {
+        nombreElemento.textContent = nombreTesista;
+      }
+      const btnTesis = document.querySelector('a[onclick="showSection(\'tesis\')"]');
+      if (dni !== '74599302') {
+        btnTesis.style.pointerEvents = 'none';
+        btnTesis.style.opacity = '0.5'; // visualmente inhabilitado
+      }
+
+    });
+    function enviarExpediente() {
+      Swal.fire({
+        icon: "success",
+        title: "¡Proyecto de tesis enviado!",
+        text: "Tu expediente ha sido enviado correctamente.",
+        confirmButtonColor: "#154172",
+      }).then(() => {
+        document.querySelectorAll(".dashboard-section").forEach((section) => {
+          section.classList.remove("active");
+          section.style.display = "none";
+        });
+        const resumen = dni === '74599302'
+          ? document.getElementById("proyecto_enviado_wendy")
+          : dni === '76132264'
+            ? document.getElementById("proyecto_enviado_alicia")
+            : dni === '72322598'
+              ? document.getElementById("proyecto_enviado_leslye")
+              : dni === '71272935'
+                ? document.getElementById("proyecto_enviado_sabrina")
+                : null;
+
+        resumen.classList.add("active");
+        resumen.style.display = "block";
+
+      });
+
+    }
+  </script>
+  <div class="sidebar" id="sidebar">
+    <a href="#" class="toggle-sidebar" onclick="toggleSidebar()">
+      <i class="fas fa-bars"></i>
+      <span class="sidebar-text">Menú</span>
+    </a>
+
+    <a href="#" onclick="showSection('proyecto')"><i class="fas fa-file-alt"></i><span class="sidebar-text">Proyecto de
+        Tesis</span></a>
+    <a href="#" onclick="showSection('tesis')"><i class="fas fa-book"></i><span class="sidebar-text">Tesis</span></a>
+    <a href="#" onclick="showSection('comunicaciones')"><i class="fas fa-envelope"></i><span
+        class="sidebar-text">Comunicaciones</span></a>
+    <a href="#" onclick="showSection('configuracion')"><i class="fas fa-cog"></i><span
+        class="sidebar-text">Configuración</span></a>
+  </div>
+
+  <div class="navbar" id="navbar">
+    <div class="d-flex align-items-center">
+      <img src="/img/FCA-UNSM-2021.png" alt="Logo Facultad" class="logo" />
+      <strong style="color: #314663; font-size: 1.2rem;">Sistema de Seguimiento de Proyectos y Tesis</strong>
+    </div>
+    <div class="user-info">
+      <div class="user-name">
+        <strong style="color: #314663" id="nombreTesista">Tesista</strong>
+        <small class="user-role">Tesista</small>
+      </div>
+      <a href="#" class="logout-icon" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt"></i></a>
+    </div>
+  </div>
+
+  <div class="content" id="content">
+    <div id="bienvenida" class="dashboard-section active">
+      <h2 class="mb-3" style="color: #314663; font-weight: bold">
+        ¡Bienvenido Tesista!
+      </h2>
+      <p class="fs-6 text-muted">
+        No cuenta con proyecto de tesis registrado.
+        <span onclick="irAProyecto()" style="
+              color: #4267b2;
+              font-weight: bold;
+              font-style: italic;
+              cursor: pointer;
+            ">
+          Registre aquí
+        </span>
+      </p>
+    </div>
+    <!--REGISTRO DE PROYECTO DE TESIS -->
+    <div id="proyecto" class="dashboard-section">
+      <h4 class="mb-4" style="color: #154172; font-weight: bold; font-size: 1.3rem;">
+        Registro de Proyecto de Tesis
+      </h4>
+
+      <div class="row g-4">
+        <!-- PASO 1: Requisitos -->
+        <div class="col-12">
+          <div class="card shadow-sm border-0">
+            <div class="card-body">
+              <h5 class="card-title" style="color: #154172">
+                <i class="fas fa-clipboard-list me-2"></i>Paso 1: Reúne los
+                Requisitos
+              </h5>
+              <ul class="mb-0">
+                <li>
+                  Solicitud al Decano
+                  <a href="/formatos/solicitud_decano.pdf" target="_blank" class="ms-1 fw-semibold text-decoration-none"
+                    style="color: #154172">Descargar</a>
+                </li>
+                <li>
+                  Copia legalizada de Bachiller o Certificado de Estudios
+                </li>
+                <li>Copia simple de matrícula y DNI (mínimo 180 créditos)</li>
+                <li>
+                  Proyecto de tesis con carátula
+                  <a href="/formatos/estructura_proyecto.pdf" target="_blank"
+                    class="ms-1 fw-semibold text-decoration-none" style="color: #154172">Descargar</a>
+                </li>
+                <li>
+                  Declaración Jurada
+                  <a href="/formatos/declaracion_jurada.pdf" target="_blank"
+                    class="ms-1 fw-semibold text-decoration-none" style="color: #154172">Descargar</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="row g-4 align-items-stretch">
+          <!-- PASO 2: Selección de asesor -->
+          <div class="col-md-6">
+            <div class="card shadow-sm border-0 h-100">
+              <div class="card-body">
+                <h5 class="card-title" style="color: #154172">
+                  <i class="fas fa-user-graduate me-2"></i>Paso 2: Elige tu Asesor
+                </h5>
+                <select class="form-select mt-3" id="asesor">
+                  <option selected disabled>-- Seleccione --</option>
+                  <option>Blgo. Carlos Daniel Roque Rengifo</option>
+                  <option>Blgo. M.Sc. Cesar Quesquen López</option>
+                  <option>Mcrob. M.Sc. Oscar Rojas Sánchez</option>
+                  <option>Dr. Agustín Cerna Mendoza</option>
+                  <option>Dr. Carlos Daniel Vecco Giove</option>
+                  <option>Dr. Carlos Rengifo Saavedra</option>
+                  <option>Dr. César Enrique Chappa Santa María</option>
+                  <option>Dr. Demetrio Ángelo Lama Isminio</option>
+                  <option>Dr. Geomar Vallejos Torres</option>
+                  <option>Dr. Guillermo Vásquez Ramírez</option>
+                  <option>Dr. Javier Ormeño Luna</option>
+                  <option>Dr. Julio Armando Ríos Ramírez</option>
+                  <option>Dr. Luis Alberto Leveau Guerra</option>
+                  <option>Dr. Mannuel Ramírez Navarro</option>
+                  <option>Dr. Orlando Ríos Ramírez</option>
+                  <option>Dr. Raul Humberto Blas Sevillano</option>
+                  <option>Dr. Santos Alberto Sotero Montero</option>
+                  <option>Dr. Jaime Walter Alvarado Ramírez</option>
+                  <option>Dr. Williams Ramírez Navarro</option>
+                  <option>Dr. Winston Franz Ríos Ruíz</option>
+                  <option>Dra. Ana Noemí Sandoval Vergara</option>
+                  <option>Dra. Carolina Fernandes Pereira</option>
+                  <option>Dra. María Gisella Orjeda Fernández</option>
+                  <option>Dra. Patricia Elena Garcia Gonzales</option>
+                  <option>Dra. Yoni Meni Rodríguez Espejo</option>
+                  <option>Ing. Edson Esmith Torres Chávez</option>
+                  <option>Ing. Eybis José Flores García</option>
+                  <option>Ing. Grecia Vanessa Fachín Ruiz</option>
+                  <option>Ing. M.Sc. Elias Torres Flores</option>
+                  <option>Ing. M.Sc. Guadalupe Ximena Huamán Cachique</option>
+                  <option>Ing. M.Sc. Harry Saavedra Alva</option>
+                  <option>Ing. M.Sc. Jorge Luis Peláez Rivera</option>
+                  <option>Ing. M.Sc. José Carlos Rojas García</option>
+                  <option>Ing. M.Sc. Luis Alberto Ordoñez Sánchez</option>
+                  <option>Ing. M.Sc. Manuel Santiago Doria Bolaños</option>
+                  <option>Ing. M.Sc. Maria Emilia Ruíz Sánchez</option>
+                  <option>Ing. M.Sc. Mariano Chávez Bazán</option>
+                  <option>Ing. M.Sc. Marvin Barrera Lozano</option>
+                  <option>Ing. M.Sc. Mike Anderson Corazon Guivin</option>
+                  <option>Ing. M.Sc. Oscar Ricardo Cubas Cubas</option>
+                  <option>Ing. M.Sc. Roaldo López Fulca</option>
+                  <option>Ing. M.Sc. Segundo Darío Maldonado Vásquez</option>
+                  <option>Ing. M.Sc. Tedy Castillo Díaz</option>
+                  <option>Ing. María Nelly Pezo Torres</option>
+                  <option>Lic. Econ Nery Gaona Jiménez</option>
+                  <option>Luis Enrique Herrera Vásquez</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- PASO 3: Subida del expediente -->
+          <div class="col-md-6">
+            <div class="card shadow-sm border-0 h-100">
+              <div class="card-body">
+                <h5 class="card-title" style="color: #154172">
+                  <i class="fas fa-file-upload me-2"></i>Paso 3: Adjunta el Expediente
+                </h5>
+                <input type="file" class="form-control mt-3" accept=".pdf" />
+                <small class="text-muted">El archivo debe estar en formato PDF y no superar los 8MB.</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- PASO 4: Enviar -->
+        <div class="col-12">
+          <div class="card shadow-sm border-0">
+            <div class="card-body text-center">
+              <button class="btn px-4 py-2" style="
+                    background-color: #154172;
+                    color: white;
+                    border-radius: 10px;
+                    font-weight: 500;
+                  " onclick="enviarExpediente()">
+                <i class="fas fa-paper-plane"></i> Enviar Expediente
+              </button>
+              <p class="mt-3 text-muted" style="font-size: 0.9rem">
+                Al hacer clic en "Enviar Expediente", confirmas que los
+                documentos cumplen con los requisitos.
+              </p>
+            </div>
+          </div>
+        </div>
+        <!-- Ayuda -->
+        <div class="col-12">
+          <div class="card shadow-sm border-0 bg-light">
+            <div class="card-body">
+              <h6 class="fw-bold" style="color: #154172">
+                ¿Necesitas ayuda con tus archivos?
+              </h6>
+              <ul class="mb-0" style="font-size: 0.85rem">
+                <li>
+                  Unir PDFs:
+                  <a href="https://www.ilovepdf.com/es/unir_pdf" target="_blank">iLovePDF</a>
+                </li>
+                <li>
+                  Convertir Word a PDF:
+                  <a href="https://www.zamzar.com" target="_blank">Zamzar</a>
+                </li>
+                <li>
+                  Comprimir PDF:
+                  <a href="https://www.pdf2go.com/compress-pdf" target="_blank">pdf2go</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- === PROYECTO DE TESIS WENDY === -->
+    <div id="proyecto_enviado_wendy" class="dashboard-section" style="display: none">
+      <h4 class="mb-4" style="color: #154172; font-weight: bold; font-size: 1.3rem;">Proyecto de Tesis Enviado</h4>
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 style="color: #154172">
+            <i class="fas fa-file-alt me-2"></i>
+            "POTENCIAL DE LOS ECOSISTEMAS DE CAFÉ (Coffea Arabica L.) EN EL SECUESTRO DE CARBONO EN MOYOBAMBA, SAN
+            MARTÍN"
+          </h5>
+          <p class="mb-1 text-muted">Asesor: <strong>Dr. Orlando Ríos Ramírez</strong></p>
+          <p class="mb-1 text-muted">Estado del Proyecto: <span class="badge bg-success">Aprobado</span></p>
+          <a href="#" class="btn btn-sm btn-outline-primary mt-2"><i class="fas fa-download"></i> Descargar Proyecto de
+            Tesis (Versión: 06/08/2024)</a>
+          <div class="mt-4">
+            <h6 class="fw-bold mb-3 text-success">Resoluciones</h6>
+            <ul style="padding-left: 20px; font-size: 0.95rem">
+              <li>Resolución de Jurados: Nro. 261-2024-UNSM/FCA/CF (06/08/2024)</li>
+              <li>Resolución de Proyecto Aprobado: Nro. 363-2024-UNSM/FCA/CF</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card shadow-sm border-0 mt-4">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3" style="color: #154172"><i class="fas fa-users"></i> Rondas de Observaciones</h6>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                <p class="fw-bold text-white p-2 rounded" style="background-color: #0056b3;">Dr. Jaime Walter Alvarado
+                  Ramírez (Presidente)</p>
+                <div class="text-success fw-semibold"><i class="fas fa-check-circle"></i> Aprobado (Ronda 1)</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                <p class="fw-bold text-white p-2 rounded" style="background-color: #0056b3;">Dr. César Enrique Chappa
+                  Santa María (Secretario)</p>
+                <div class="text-success fw-semibold"><i class="fas fa-check-circle"></i> Aprobado (Ronda 1)</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                <p class="fw-bold text-white p-2 rounded" style="background-color: #0056b3;">Ing. M.Sc. Segundo Darío
+                  Maldonado Vásquez (Vocal)</p>
+                <div class="text-success fw-semibold"><i class="fas fa-check-circle"></i> Aprobado (Ronda 1)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REGISTRO DE INFROME FINAL DE TESIS-->
+    <div id="tesis" class="dashboard-section" style="display: none;">
+      <h4 class="mb-4" style="color: #154172; font-weight: bold; font-size: 1.3rem;">Registro de Informe Final de Tesis</h4>
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title" style="color: #154172"><i class="fas fa-file-alt me-2"></i>
+            “POTENCIAL DE LOS ECOSISTEMAS DE CAFÉ (Coffea Arabica L.) EN EL SECUESTRO DE CARBONO EN MOYOBAMBA, SAN
+            MARTÍN”
+          </h5>
+          <p class="text-muted">Adjunta tu informe final de tesis uniendo en un solo PDF:</p>
+          <ul style="font-size: 0.9rem;">
+            <li>Plantilla de Solicitud de revisión
+              <a href="/formatos/Solicitud_revisión.pdf" target="_blank" class="ms-1 fw-semibold text-decoration-none"
+                style="color: #154172">Descargar</a>
+            </li>
+            <li>Resolución del Proyecto Aprobado
+              <a href="/formatos/resolución_Proyecto.pdf" target="_blank" class="ms-1 fw-semibold text-decoration-none"
+                style="color: #154172">Descargar</a>
+            </li>
+            <li>Informe Final de Tesis</li>
+          </ul>
+          <p class="text-muted">
+            Para sustentar usted debe contar con el grado de
+            <span
+              style="color: #154172;font-weight: 500;">
+              BACHILLER
+            </span>
+          </p>
+          <div class="mb-3">
+            <label for="informeFinalTesis" class="form-label fw-semibold">Adjuntar expediente final (max 7MB):</label>
+            <input type="file" id="informeFinalTesis" class="form-control" accept=".pdf" />
+            <small class="text-muted">Solo se admite formato PDF.</small>
+          </div>
+          <div class="text-center">
+            <button class="btn px-4 py-2" style="
+              background-color: #154172;
+              color: white;
+              border-radius: 10px;
+              font-weight: 500;"
+              onclick="enviarInformeFinalTesis()">
+              <i class="fas fa-paper-plane"></i> Enviar Informe Final
+            </button>
+            <p class="mt-3 text-muted" style="font-size: 0.9rem">Una vez enviado, será notificado a Decanatura.</p>
+          </div>
+        </div>
+      </div>
+
+         <!-- Ayuda -->
+       <div class="my-4"></div>
+        <div class="col-12">
+          <div class="card shadow-sm border-0 bg-light">
+            <div class="card-body">
+              <h6 class="fw-bold" style="color: #154172">
+                ¿Necesitas ayuda con tus archivos?
+              </h6>
+              <ul class="mb-0" style="font-size: 0.85rem">
+                <li>
+                  Unir PDFs:
+                  <a href="https://www.ilovepdf.com/es/unir_pdf" target="_blank">iLovePDF</a>
+                </li>
+                <li>
+                  Convertir Word a PDF:
+                  <a href="https://www.zamzar.com" target="_blank">Zamzar</a>
+                </li>
+                <li>
+                  Comprimir PDF:
+                  <a href="https://www.pdf2go.com/compress-pdf" target="_blank">pdf2go</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+<!--INFRORME FINAL DE WENDY-->
+    <div id="Informe_enviado_wendy" class="dashboard-section" style="display: none">
+      <h4 class="mb-4" style="color: #154172; font-weight: bold; font-size: 1.3rem;">Tesis</h4>
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 style="color: #154172">
+            <i class="fas fa-file-alt me-2"></i>
+            "POTENCIAL DE LOS ECOSISTEMAS DE CAFÉ (Coffea Arabica L.) EN EL SECUESTRO DE CARBONO EN MOYOBAMBA, SAN
+            MARTÍN"
+          </h5>
+          <p class="mb-1 text-muted">Asesor: <strong>Dr. Orlando Ríos Ramírez</strong></p>
+          <p class="mb-1 text-muted">Estado de Tesis: <span class="badge bg-success"> Tesis Aprobada</span></p>
+          <p class="text-muted">Se le notificará cuando se le declare expedito</p>
+        </div>
+      </div>
+      <div class="card shadow-sm border-0 mt-4">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3" style="color: #154172"><i class="fas fa-users"></i> Rondas de Observaciones</h6>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                <p class="fw-bold text-white p-2 rounded" style="background-color: #0056b3;">Dr. Jaime Walter Alvarado
+                  Ramírez (Presidente)</p>
+                <div class="text-success fw-semibold"><i class="fas fa-check-circle"></i> Aprobado (Ronda 1)</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                <p class="fw-bold text-white p-2 rounded" style="background-color: #0056b3;">Dr. César Enrique Chappa
+                  Santa María (Secretario)</p>
+                <div class="text-success fw-semibold"><i class="fas fa-check-circle"></i> Aprobado (Ronda 1)</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                <p class="fw-bold text-white p-2 rounded" style="background-color: #0056b3;">Ing. M.Sc. Segundo Darío
+                  Maldonado Vásquez (Vocal)</p>
+                <div class="text-success fw-semibold"><i class="fas fa-check-circle"></i> Aprobado (Ronda 1)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+<!-- === ALICIA === -->
+    <div id="proyecto_enviado_alicia" class="dashboard-section" style="display: none">
+      <h4 class="mb-4" style="color: #154172; font-weight: bold">Proyecto de Tesis Enviado</h4>
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 style="color: #154172">
+            <i class="fas fa-file-alt me-2"></i>
+            "ASOCIATIVIDAD Y SU RELACIÓN EN EL RENDIMIENTO DE CAFÉ, DISTRITO DE SAN MARTÍN DE ALAO, PROVINCIA DE EL
+            DORADO, 2024"
+          </h5>
+          <p class="mb-1 text-muted">Asesor: <strong>Ing. M.Sc. Harry Saavedra Alva</strong></p>
+          <p class="mb-1 text-muted">Estado del Proyecto: <span class="badge bg-success">Proyecto con Jurado
+              Asignado</span></p>
+          <a href="#" class="btn btn-sm btn-outline-primary mt-2"><i class="fas fa-download"></i> Descargar Proyecto de
+            Tesis (Versión: 22/04/2025)</a>
+          <div class="mt-4">
+            <h6 class="fw-bold mb-3 text-success">Resoluciones</h6>
+            <ul style="padding-left: 20px; font-size: 0.95rem">
+              <li>Resolución de Jurados: Nro. 110-2024-UNSM/FCA/CF (22/04/2025)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card shadow-sm border-0 mt-4">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3" style="color: #154172"><i class="fas fa-users"></i> Rondas de Observaciones</h6>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                <p class="fw-bold text-white p-2 rounded" style="background-color: #0056b3;">Dra. Ana Noemí Sandoval
+                  Vergara (Presidente)</p>
+                <div class="text-warning fw-semibold"><i class="fas fa-hourglass-half"></i> En revisión</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                <p class="fw-bold text-white p-2 rounded" style="background-color: #0056b3;">Ing. M.Sc. Luis Alberto
+                  Ordoñez Sánchez (Secretario)</p>
+                <div class="text-warning fw-semibold"><i class="fas fa-hourglass-half"></i> En revisión</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                <p class="fw-bold text-white p-2 rounded" style="background-color: #0056b3;">Blgo. M.Sc. Oscar Rojas
+                  Sánchez (Vocal)</p>
+                <div class="text-warning fw-semibold"><i class="fas fa-hourglass-half"></i> En revisión</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- === LESLYE === -->
+    <div id="proyecto_enviado_leslye" class="dashboard-section" style="display: none">
+      <h4 class="mb-4" style="color: #154172; font-weight: bold">Proyecto de Tesis Enviado</h4>
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 style="color: #154172"><i class="fas fa-file-alt me-2"></i> "RESPUESTA SANITARIA DE TRES ACCESIONES DE
+            TOMATE NATIVO (SOLANUM LYCOPERSICUM L.) A LOS AGENTES SANITARIOS EN LAMAS, SAN MARTÍN"</h5>
+          <p class="mb-1 text-muted">Asesor: <strong>Ing. M.Sc. Manuel Santiago Doria Bolaños</strong></p>
+          <p class="mb-1 text-muted">Estado del Proyecto: <span class="badge bg-success">Proyecto con Jurado
+              Asignado</span></p>
+          <a href="#" class="btn btn-sm btn-outline-primary mt-2"><i class="fas fa-download"></i> Descargar Proyecto de
+            Tesis (Versión: 14/04/2025)</a>
+          <div class="mt-4">
+            <h6 class="fw-bold mb-3 text-success">Resoluciones</h6>
+            <ul style="padding-left: 20px; font-size: 0.95rem">
+              <li>Resolución de Jurados: Nro. 028-2025-UNSM/FCA/CF (14/04/2025)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card shadow-sm border-0 mt-4">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3" style="color: #154172"><i class="fas fa-users"></i> Rondas de Observaciones</h6>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                <p class="fw-bold text-white p-2 rounded" style="background-color: #0056b3;">Dr. Jaime Walter Alvarado
+                  Ramírez (Presidente)</p>
+                <div class="text-success fw-semibold"><i class="fas fa-check-circle"></i> Aprobado (Ronda 1)</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                <p class="fw-bold text-white p-2 rounded" style="background-color: #0056b3;">Ing. M.Sc. Jorge Luis
+                  Peláez Rivera (Secretario)</p>
+                <p><strong>Ronda 1:</strong> <a href="#" class="text-primary">[Carta Observaciones]</a> | <a href="#"
+                    class="text-primary">[Observaciones Enviadas]</a></p>
+                <p><strong>Ronda 2:</strong> <a href="#" class="text-primary">[Carta Observaciones]</a> | <a href="#"
+                    class="text-primary">[Observaciones Enviadas]</a></p>
+                <div class="text-success fw-semibold mt-2"><i class="fas fa-check-circle"></i> Aprobado (Ronda 3)</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                <p class="fw-bold text-white p-2 rounded" style="background-color: #0056b3;">Ing. Eybis José Flores
+                  García (Vocal)</p>
+                <p><strong>Ronda 1:</strong> <a href="#" class="text-primary">[Carta Observaciones]</a> | <a href="#"
+                    class="text-primary">[Observaciones Enviadas]</a></p>
+                <div class="text-success fw-semibold mt-2"><i class="fas fa-check-circle"></i> Aprobado (Ronda 2)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- === SABRINA === -->
+    <div id="proyecto_enviado_sabrina" class="dashboard-section" style="display: none">
+      <h4 class="mb-4" style="color: #154172; font-weight: bold">Proyecto de Tesis Enviado</h4>
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 style="color: #154172"><i class="fas fa-file-alt me-2"></i> "DIVERSIDAD DE ESPECIES DEL GÉNERO MELIPONA
+            ILLIGER, 1806 EN EL DEPARTAMENTO DE SAN MARTÍN"</h5>
+          <p class="mb-1 text-muted">Asesor: <strong>Dr. Carlos Daniel Vecco Giove</strong></p>
+          <p class="mb-1 text-muted">Co-Asesor: <strong>Dr. Javier Ormeño Luna</strong></p>
+          <p class="mb-1 text-muted">Estado del Proyecto: <span class="badge bg-warning text-dark">En Rondas de
+              Observación</span></p>
+          <a href="#" class="btn btn-sm btn-outline-primary mt-2"><i class="fas fa-download"></i> Descargar Proyecto de
+            Tesis (Versión: 10/03/2025)</a>
+          <div class="mt-4">
+            <h6 class="fw-bold mb-3 text-success">Resoluciones</h6>
+            <ul style="padding-left: 20px; font-size: 0.95rem">
+              <li>Resolución de Jurados: Nro. 002-2025-UNSM/FCA/CF (10/03/2025)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card shadow-sm border-0 mt-4">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3" style="color: #154172"><i class="fas fa-users"></i> Rondas de Observaciones</h6>
+          <div class="row">
+            <!-- Igual que Leslye -->
+            <div class="col-md-4">
+              <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                <p class="fw-bold text-white p-2 rounded" style="background-color: #0056b3;">Dr. Agustín Cerna Mendoza
+                  (Presidente)</p>
+                <div class="text-success fw-semibold"><i class="fas fa-check-circle"></i> Aprobado (Ronda 1)</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                <p class="fw-bold text-white p-2 rounded" style="background-color: #0056b3;">Ing. M.Sc. Manuel Santiago
+                  Doria Bolaños (Secretario)</p>
+                <p><strong>Ronda 1:</strong> <a href="#" class="text-primary">[Carta Observaciones]</a> | <a href="#"
+                    class="text-primary">[Observaciones Enviadas]</a></p>
+                <p><strong>Ronda 2:</strong>
+                  <a href="#" class="text-primary">[Carta Observaciones]</a> |
+                  <a href="#" class="text-primary">[Formato de Carta]</a>
+                </p>
+                <form id="formRonda2" class="mt-2" enctype="multipart/form-data" onsubmit="enviarCartaRonda2(event)">
+                  <div class="d-flex align-items-center gap-2">
+                    <input type="file" accept=".pdf" required class="form-control form-control-sm"
+                      style="max-width: 250px;">
+                    <button type="submit" class="btn btn-sm btn-outline-success">
+                      <i class="fas fa-paper-plane"></i> Enviar
+                    </button>
+                  </div>
+                </form>
+                <div id="estadoRonda2" class="text-warning fw-semibold mt-2" style="display: none;">
+                  <i class="fas fa-hourglass-half"></i> En revisión
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                <p class="fw-bold text-white p-2 rounded" style="background-color: #0056b3;">Blgo. M.Sc. Oscar Rojas
+                  Sánchez (Vocal)</p>
+                <p><strong>Ronda 1:</strong> <a href="#" class="text-primary">[Carta Observaciones]</a> | <a href="#"
+                    class="text-primary">[Observaciones Enviadas]</a></p>
+                <div class="text-success fw-semibold mt-2"><i class="fas fa-check-circle"></i> Aprobado (Ronda 2)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN DE COMUNICACIONES -->
+<div id="comunicaciones" class="dashboard-section" style="display: none;">
+  <h4 class="mb-4" style="color: #154172; font-weight: bold; font-size: 1.3rem;">Comunicaciones con Jurados y Asesor</h4>
+
+  <!-- Asesor -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <h5 class="card-title" style="color: #154172"><i class="fas fa-user-tie me-2"></i>Asesor</h5>
+      <div class="border rounded p-3" style="background-color: #f8f9fa;">
+        <p class="fw-bold mb-1" style="color: #154172;">Dr. Orlando Ríos Ramírez</p>
+       <p class="mb-1">
+          <i class="fas fa-envelope me-1" style="color: #0056b3;"></i>
+          <a href="mailto:orios@unsm.edu.pe">orios@unsm.edu.pe</a>
+        </p>
+        <p class="mb-0">
+          <i class="fab fa-whatsapp me-1" style="color: #25D366;"></i>
+          <a href="https://wa.me/51979472859" target="_blank">+51 987654321</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Jurados -->
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <h5 class="card-title" style="color: #154172"><i class="fas fa-users me-2"></i>Jurados</h5>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+            <p class="fw-bold mb-1" style="color: #154172;">Dr. Jaime Walter Alvarado Ramírez<br><small>(Presidente)</small></p>
+           <p class="mb-1">
+              <i class="fas fa-envelope me-1" style="color: #0056b3;"></i>
+              <a href="mailto:jwalvarado@unsm.edu.pe">jwalvarado@unsm.edu.pe</a>
+            </p>
+            <p class="mb-0">
+              <i class="fab fa-whatsapp me-1" style="color: #25D366;"></i>
+              <a href="https://wa.me/51912345678" target="_blank">+51 912345678</a>
+            </p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+            <p class="fw-bold mb-1" style="color: #154172;">Dr. César Enrique Chappa Santa María<br><small>(Secretario)</small></p>
+            <p class="mb-1">
+              <i class="fas fa-envelope me-1" style="color: #0056b3;"></i>
+              <a href="mailto:cechappa@unsm.edu.pe">cechappa@unsm.edu.pe</a>
+            </p>
+            <p class="mb-0">
+              <i class="fab fa-whatsapp me-1" style="color: #25D366;"></i>
+              <a href="https://wa.me/51923456789" target="_blank">+51 923456789</a>
+            </p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+            <p class="fw-bold mb-1" style="color: #154172;">Ing. M.Sc. Segundo Darío Maldonado Vásquez<br><small>(Vocal)</small></p>
+            <p class="mb-1">
+              <i class="fas fa-envelope me-1" style="color: #0056b3;"></i>
+              <a href="mailto:sdmaldonado@unsm.edu.pe">sdmaldonado@unsm.edu.pe</a>
+            </p>
+            <p class="mb-0">
+              <i class="fab fa-whatsapp me-1" style="color: #25D366;"></i>
+              <a href="https://wa.me/51934567890" target="_blank">+51 934567890</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="configuracion" class="dashboard-section" style="display: none;">
+  <h4 class="mb-4" style="color: #154172; font-weight: bold;">Configuración de Contacto</h4>
+
+  <!-- DATOS ACTUALES -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <h5 class="card-title mb-3" style="color: #154172;"><i class="fas fa-id-card me-2"></i>Datos actuales del Tesista</h5>
+      <p class="mb-2" style="color: #154172;"><strong>DNI:</strong> <span class="mb-2">74599302</span></p>
+      <p class="mb-2" style="color: #154172;"><strong>Nombre completo:</strong>a<span class="mb-2" style="color: #3d3d3d;"> Wendy Aliaga Piña</span></p>
+      <p class="mb-2" style="color: #154172;"><strong>Correo electrónico:</strong><span class="mb-2" style="color: #3d3d3d;"> walpi@alumno.unsm.edu.pe</span></p>
+      <p class="mb-0" style="color: #154172;"><strong>Número de celular:</strong><span class="mb-0" style="color: #3d3d3d;"></span> 915756354</p>
+    </div>
+  </div>
+
+  <!-- FORMULARIO PARA ACTUALIZAR CORREO Y CELULAR -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <form id="formConfiguracion">
+        <h5 class="mb-3" style="color: #154172;"><i class="fas fa-edit me-2"></i>Actualizar datos de contacto</h5>
+        <div class="mb-3">
+          <label for="correo" class="form-label fw-semibold">Correo electrónico</label>
+          <input type="email" class="form-control" id="correo" required>
+        </div>
+        <div class="mb-3">
+          <label for="celular" class="form-label fw-semibold">Número de celular</label>
+          <input type="tel" class="form-control" id="celular" required>
+        </div>
+        <button type="submit" class="btn px-4 py-2" style="background-color: #154172; color: white; border-radius: 10px; font-weight: 500;">
+          <i class="fas fa-save me-1"></i> Guardar Cambios
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- CAMBIO DE CONTRASEÑA -->
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <h5 class="card-title mb-3" style="color: #154172;"><i class="fas fa-key me-2"></i>Cambiar Contraseña</h5>
+      <form id="formPassword">
+        <div class="mb-3">
+          <label for="nueva" class="form-label fw-semibold">Nueva contraseña</label>
+          <input type="password" class="form-control" id="nueva" required>
+        </div>
+        <div class="mb-3">
+          <label for="confirmar" class="form-label fw-semibold">Confirmar contraseña</label>
+          <input type="password" class="form-control" id="confirmar" required>
+        </div>
+        <button type="submit" class="btn px-4 py-2" style="background-color: #154172; color: white; border-radius: 10px; font-weight: 500;">
+          <i class="fas fa-lock me-1"></i> Cambiar Contraseña
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+    </div>
+    </div>
+        <script>
+
+      function showSection(id) {
+        document.querySelectorAll(".dashboard-section").forEach((section) => {
+          section.classList.remove("active");
+          section.style.display = "none";
+        });
+
+        const targetSection = document.getElementById(id);
+        if (targetSection) {
+          targetSection.classList.add("active");
+          targetSection.style.display = "block";
+        }
+      }
+
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const content = document.getElementById("content");
+        const navbar = document.getElementById("navbar");
+        sidebar.classList.toggle("collapsed");
+        content.classList.toggle("collapsed");
+        navbar.classList.toggle("collapsed");
+      }
+
+      function irAProyecto() {
+        showSection("proyecto");
+        document.getElementById("bienvenida").classList.remove("active");
+      }
+
+      document.getElementById("formConfiguracion").addEventListener("submit", function (e) {
+        e.preventDefault();
+        Swal.fire({
+          icon: "success",
+          title: "¡Datos actualizados!",
+          text: "Tu información de contacto se guardó correctamente.",
+          confirmButtonColor: "#154172",
+        });
+      });
+
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+
+
+        if (window.innerWidth <= 768) {
+          sidebar.classList.toggle("active");
+        } else {
+
+          const content = document.getElementById("content");
+          const navbar = document.getElementById("navbar");
+          sidebar.classList.toggle("collapsed");
+          content.classList.toggle("collapsed");
+          navbar.classList.toggle("collapsed");
+        }
+      }
+      function enviarCartaRonda2(event) {
+        event.preventDefault();
+
+        Swal.fire({
+          icon: "success",
+          title: "¡Carta enviada!",
+          text: "El formato de carta ha sido enviado correctamente.",
+          confirmButtonColor: "#154172",
+        }).then(() => {
+          document.getElementById("formRonda2").style.display = "none";
+          document.getElementById("estadoRonda2").style.display = "block";
+        });
+      }
+      function enviarInformeFinalTesis() {
+  const fileInput = document.getElementById("informeFinalTesis");
+  const file = fileInput.files[0];
+
+  if (!file || file.type !== "application/pdf") {
+    Swal.fire({
+      icon: "error",
+      title: "Archivo inválido",
+      text: "Por favor, selecciona un archivo PDF válido.",
+      confirmButtonColor: "#154172"
+    });
+    return;
+  }
+
+  if (file.size > 7 * 1024 * 1024) {
+    Swal.fire({
+      icon: "error",
+      title: "Archivo muy grande",
+      text: "El archivo no debe superar los 7MB.",
+      confirmButtonColor: "#154172"
+    });
+    return;
+  }
+
+  Swal.fire({
+    icon: "success",
+    title: "¡Informe enviado!",
+    text: "Tu informe final ha sido enviado correctamente.",
+    confirmButtonColor: "#154172"
+  }).then(() => {
+    // Oculta todas las secciones
+    document.querySelectorAll(".dashboard-section").forEach((section) => {
+      section.classList.remove("active");
+      section.style.display = "none";
+    });
+
+    // Muestra sección con ID correspondiente
+    const resumen = document.getElementById("Informe_enviado_wendy");
+    if (resumen) {
+      resumen.classList.add("active");
+      resumen.style.display = "block";
+    }
+  });
+
+ const datosTesistas = {
+    '74599302': {
+      nombre: 'Wendy Aliaga Piña',
+      correo: 'wealpi@alumno.unsm.edu.pe',
+      celular: '987654321'
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const dni = urlParams.get('dni');
+    const datos = datosTesistas[dni];
+
+    if (datos) {
+      // Mostrar en card de resumen
+      const infoDNI = document.getElementById('infoDNI');
+      const infoNombre = document.getElementById('infoNombre');
+      const infoCorreo = document.getElementById('infoCorreo');
+      const infoCelular = document.getElementById('infoCelular');
+
+      if (infoDNI && infoNombre && infoCorreo && infoCelular) {
+        infoDNI.textContent = dni;
+        infoNombre.textContent = datos.nombre;
+        infoCorreo.textContent = datos.correo;
+        infoCelular.textContent = datos.celular;
+      }
+
+      // Mostrar en inputs de edición
+      const correoInput = document.getElementById('correo');
+      const celularInput = document.getElementById('celular');
+      if (correoInput && celularInput) {
+        correoInput.value = datos.correo;
+        celularInput.value = datos.celular;
+      }
+    }
+
+    // Guardar cambios de contacto
+    document.getElementById("formConfiguracion").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const nuevoCorreo = document.getElementById('correo').value;
+      const nuevoCelular = document.getElementById('celular').value;
+
+      // Actualiza en la tarjeta visible
+      document.getElementById('infoCorreo').textContent = nuevoCorreo;
+      document.getElementById('infoCelular').textContent = nuevoCelular;
+
+      Swal.fire({
+        icon: "success",
+        title: "¡Datos actualizados!",
+        text: "Tu información de contacto se guardó correctamente.",
+        confirmButtonColor: "#154172",
+      });
+    });
+
+    // Cambio de contraseña
+    document.getElementById("formPassword").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const nueva = document.getElementById("nueva").value;
+      const confirmar = document.getElementById("confirmar").value;
+
+      if (nueva !== confirmar) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Las contraseñas no coinciden.",
+          confirmButtonColor: "#154172",
+        });
+        return;
+      }
+
+      Swal.fire({
+        icon: "success",
+        title: "¡Contraseña cambiada!",
+        text: "Tu nueva contraseña ha sido actualizada.",
+        confirmButtonColor: "#154172",
+      });
+
+      document.getElementById("nueva").value = '';
+      document.getElementById("confirmar").value = '';
+    });
+  });
+}
+function cerrarSesion() {
+        Swal.fire({
+          icon: "question",
+          title: "¿Cerrar sesión?",
+          showCancelButton: true,
+          confirmButtonText: "Sí",
+          cancelButtonText: "Cancelar",
+          confirmButtonColor: "#154172"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            localStorage.clear();
+            window.location.href = "LOGIN.html";
+          }
+        });
+      }
+  </script>
+</body>
+</html>

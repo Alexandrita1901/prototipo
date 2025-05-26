@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SISPROT - Panel del Tesista</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body {
+      background: #f4f4f4;
+      font-family: "Segoe UI", sans-serif;
+      font-size: 0.85rem;
+    }
+
+    .sidebar {
+      height: 100vh;
+      width: 250px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: linear-gradient(to bottom, #154172, #5a8fc2);
+      color: white;
+      transition: all 0.4s ease;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      padding-top: 10px;
+    }
+
+    .sidebar.collapsed {
+      width: 80px;
+      align-items: center;
+    }
+
+    .sidebar .toggle-sidebar {
+      display: flex;
+      align-items: center;
+      color: white;
+      padding: 15px 20px;
+      text-decoration: none;
+      font-size: 20px;
+      width: 100%;
+      background: transparent;
+      border: none;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar.collapsed .toggle-sidebar {
+      justify-content: center;
+      padding: 15px 0;
+    }
+
+    .sidebar.collapsed .toggle-sidebar .sidebar-text {
+      display: none;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      color: white;
+      padding: 15px 20px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      font-size: 18px;
+      width: 100%;
+    }
+
+    .sidebar a i {
+      font-size: 26px;
+      width: 40px;
+      text-align: center;
+    }
+
+    .sidebar.collapsed a {
+      justify-content: center;
+      padding: 15px 0;
+    }
+
+    .sidebar.collapsed a i {
+      margin: 0 auto;
+    }
+
+    .sidebar.collapsed .sidebar-text {
+      display: none;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+
+    .content {
+      margin-left: 250px;
+      padding: 20px;
+      transition: margin-left 0.4s ease;
+    }
+
+    .content.collapsed {
+      margin-left: 80px;
+    }
+
+    .navbar {
+      margin-left: 250px;
+      background-color: #ffffff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: margin-left 0.4s ease;
+    }
+
+    .navbar.collapsed {
+      margin-left: 80px;
+    }
+
+    .navbar .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .navbar .user-name {
+      text-align: right;
+    }
+
+    .navbar .user-name small {
+      display: block;
+      color: #888;
+    }
+
+    .logo {
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    .dashboard-section {
+      display: none;
+    }
+
+    .dashboard-section.active {
+      display: block;
+    }
+
+    .user-role {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .logout-icon {
+      font-size: 25px;
+      color: #dc3545;
+    }
+
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 80px;
+        align-items: center;
+      }
+
+      .sidebar .sidebar-text {
+        display: none;
+      }
+
+      .sidebar a {
+        justify-content: center;
+        padding: 15px 0;
+      }
+
+      .sidebar a i {
+        margin: 0 auto;
+      }
+
+      .navbar,
+      .content {
+        margin-left: 80px !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px;
+        gap: 10px;
+      }
+
+      .navbar .user-info {
+        align-self: stretch;
+        justify-content: space-between;
+        flex-direction: row;
+      }
+
+      .navbar .user-name {
+        text-align: right;
+      }
+    }
+
+    .jurado-box {
+      min-height: 160px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+    }
+
+    .jurado-box p:last-child {
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const dni = urlParams.get('dni');
+
+    const docente = {
+      '43248273': 'Harry Saavedra Alva',
+    };
+    const nombreDocente = docente[dni] || 'Docente';
+    window.addEventListener('DOMContentLoaded', () => {
+      const nombreElemento = document.getElementById('nombreDocente');
+      if (nombreElemento) {
+        nombreElemento.textContent = nombreDocente;
+      }
+      
+    });
+  </script>
+
+  <div class="sidebar" id="sidebar">
+    <a href="#" class="toggle-sidebar" onclick="toggleSidebar()">
+      <i class="fas fa-bars"></i>
+      <span class="sidebar-text">Menú</span>
+    </a>
+
+    <a href="#" onclick="showSection('proyecto')"><i class="fas fa-file-alt"></i><span class="sidebar-text">Proyecto de
+        Tesis</span></a>
+    <a href="#" onclick="showSection('tesis')"><i class="fas fa-book"></i><span class="sidebar-text">Tesis</span></a>
+    <a href="#" onclick="showSection('comunicaciones')"><i class="fas fa-envelope"></i><span
+        class="sidebar-text">Comunicaciones</span></a>
+    <a href="#" onclick="showSection('configuracion')"><i class="fas fa-cog"></i><span
+        class="sidebar-text">Configuración</span></a>
+  </div>
+
+  <div class="navbar" id="navbar">
+    <div class="d-flex align-items-center">
+      <img src="/img/FCA-UNSM-2021.png" alt="Logo Facultad" class="logo" />
+      <strong style="color: #314663; font-size: 1.2rem;">Sistema de Seguimiento de Proyectos y Tesis</strong>
+    </div>
+    <div class="user-info">
+      <div class="user-name">
+        <strong style="color: #314663" id="nombreDocente">Docente</strong>
+        <small class="user-role">Docente</small>
+      </div>
+      <a href="#" class="logout-icon" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt"></i></a>
+    </div>
+  </div>
+
+  <div class="content" id="content">
+    <div id="bienvenida" class="dashboard-section active">
+      <h2 class="mb-3" style="color: #314663; font-weight: bold">
+        ¡Bienvenido Docente!
+      </h2>
+      <p class="fs-6 text-muted">
+       Recuento del total de tesis que lleva xd
+      </p>
+    </div>
+    
+
+
+    </div>
+    </div>
+      <script>
+        function showSection(id) {
+        document.querySelectorAll(".dashboard-section").forEach((section) => {
+          section.classList.remove("active");
+          section.style.display = "none";
+        });
+
+        const targetSection = document.getElementById(id);
+        if (targetSection) {
+          targetSection.classList.add("active");
+          targetSection.style.display = "block";
+        }
+      }
+
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const content = document.getElementById("content");
+        const navbar = document.getElementById("navbar");
+        sidebar.classList.toggle("collapsed");
+        content.classList.toggle("collapsed");
+        navbar.classList.toggle("collapsed");
+      }
+
+        function cerrarSesion() {
+        Swal.fire({
+          icon: "question",
+          title: "¿Cerrar sesión?",
+          showCancelButton: true,
+          confirmButtonText: "Sí",
+          cancelButtonText: "Cancelar",
+          confirmButtonColor: "#154172"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            localStorage.clear();
+            window.location.href = "LOGIN.html";
+          }
+        });
+      }
+      </script>
+</body>
+</html>
