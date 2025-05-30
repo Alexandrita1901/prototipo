@@ -8,6 +8,8 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
   <style>
     body {
       background: #f4f4f4;
@@ -213,8 +215,28 @@
     .jurado-box p:last-child {
       margin-top: auto;
     }
+
+    .pagination .page-link {
+      color: #154172;
+      /* color del texto */
+      border-color: #154172;
+    }
+
+    .pagination .page-link:hover {
+      background-color: #e6eef6;
+      /* un azul claro al pasar el mouse */
+      border-color: #154172;
+    }
+
+    .pagination .active .page-link {
+      background-color: #154172;
+      /* fondo del botón activo */
+      border-color: #154172;
+      color: white;
+    }
   </style>
 </head>
+
 <body>
   <script>
     const urlParams = new URLSearchParams(window.location.search);
@@ -229,7 +251,7 @@
       if (nombreElemento) {
         nombreElemento.textContent = nombreDocente;
       }
-      
+
     });
   </script>
 
@@ -239,18 +261,21 @@
       <span class="sidebar-text">Menú</span>
     </a>
 
-    <a href="#" onclick="showSection('proyecto')"><i class="fas fa-file-alt"></i><span class="sidebar-text">Proyecto de
+    <a href="#" onclick="showSection('proyecto')"> <i class="fas fa-gavel"></i><span class="sidebar-text">Jurado de
+        Proyecto</span></a>
+    <a href="#" onclick="showSection('tesis')"><i class="fas fa-balance-scale"></i><span class="sidebar-text">Jurado de
         Tesis</span></a>
-    <a href="#" onclick="showSection('tesis')"><i class="fas fa-book"></i><span class="sidebar-text">Tesis</span></a>
-    <a href="#" onclick="showSection('comunicaciones')"><i class="fas fa-envelope"></i><span
-        class="sidebar-text">Comunicaciones</span></a>
+    <a href="#" onclick="showSection('asesorproyecto')"><i class="fas fa-user-check"></i><span
+        class="sidebar-text">Asesor de Proyecto</span></a>
+    <a href="#" onclick="showSection('asesortesis')"> <i class="fas fa-user-graduate"></i><span
+        class="sidebar-text">Asesor de Tesis</span></a>
     <a href="#" onclick="showSection('configuracion')"><i class="fas fa-cog"></i><span
         class="sidebar-text">Configuración</span></a>
   </div>
 
   <div class="navbar" id="navbar">
     <div class="d-flex align-items-center">
-      <img src="FCA-UNSM-2021.png" alt="Logo Facultad" class="logo" />
+        <img src="FCA-UNSM-2021.png" alt="Logo Facultad" style="height: 40px; margin-right: 10px;">
       <strong style="color: #314663; font-size: 1.2rem;">Sistema de Seguimiento de Proyectos y Tesis</strong>
     </div>
     <div class="user-info">
@@ -261,23 +286,185 @@
       <a href="#" class="logout-icon" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt"></i></a>
     </div>
   </div>
-
+  </div>
   <div class="content" id="content">
     <div id="bienvenida" class="dashboard-section active">
       <h2 class="mb-3" style="color: #314663; font-weight: bold">
         ¡Bienvenido Docente!
       </h2>
       <p class="fs-6 text-muted">
-       Recuento del total de tesis que lleva xd
+        Recuento del total de tesis que lleva xd
       </p>
     </div>
-    
+
+    <!-- Sección: Jurado de Proyecto -->
+    <div id="proyecto" class="dashboard-section" style="display: none;">
+      <h4 class="mb-4" style="color: #154172; font-weight: bold; font-size: 1.3rem;">
+        Jurado de Proyectos Asignados
+      </h4>
+
+      <!-- Filtro de Búsqueda -->
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <input type="text" id="busquedaProyecto" class="form-control" placeholder="Buscar por nombre, tema o rol...">
+        </div>
+        <div class="col-md-6 text-end">
+          <select id="ordenarPor" class="form-select w-auto d-inline">
+            <option value="">Ordenar por</option>
+            <option value="año">Año</option>
+            <option value="estado">Estado</option>
+            <option value="rol">Rol</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Tabla de Proyectos -->
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+          <thead class="text-center">
+            <tr>
+              <th style="background-color: #276bb8; color: white; width: 40px">Año</th>
+              <th style="background-color: #276bb8; color: white;width: 180px">Nombre del Tesista</th>
+              <th style="background-color: #276bb8; color: white;width: 400px">Título del Proyecto</th>
+              <th style="background-color: #276bb8; color: white;width: 50px">Rol</th>
+              <th style="background-color: #276bb8; color: white;width: 50px">Estado</th>
+              <th style="background-color: #276bb8; color: white;width: 100px">Resolución</th>
+              <th style="background-color: #276bb8; color: white;width: 50px">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaProyectos"></tbody>
+        </table>
+      </div>
+      <!-- Paginación alineada a la derecha -->
+      <div class="d-flex justify-content-end mt-3">
+        <nav>
+          <ul class="pagination mb-0" id="paginacion"></ul>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Sección: Jurado de Tesis -->
+<div id="tesis" class="dashboard-section" style="display: none;">
+  <h4 class="mb-4" style="color: #154172; font-weight: bold; font-size: 1.3rem;">Jurado de Tesis Asignados</h4>
+   <!-- Filtro de Búsqueda -->
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <input type="text" id="busquedaTesis" class="form-control" placeholder="Buscar por nombre, tema o rol...">
+        </div>
+        <div class="col-md-6 text-end">
+          <select id="ordenarPor" class="form-select w-auto d-inline">
+            <option value="">Ordenar por</option>
+            <option value="año">Año</option>
+            <option value="estado">Estado</option>
+            <option value="rol">Rol</option>
+          </select>
+        </div>
+      </div>
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="text-center">
+        <tr>
+              <th style="background-color: #276bb8; color: white; width: 40px">Año</th>
+              <th style="background-color: #276bb8; color: white;width: 180px">Nombre del Tesista</th>
+              <th style="background-color: #276bb8; color: white;width: 400px">Título del Proyecto</th>
+              <th style="background-color: #276bb8; color: white;width: 50px">Rol</th>
+              <th style="background-color: #276bb8; color: white;width: 50px">Estado</th>
+              <th style="background-color: #276bb8; color: white;width: 100px">Resolución</th>
+              <th style="background-color: #276bb8; color: white;width: 50px">Acciones</th>
+            </tr>
+      </thead>
+      <tbody id="tablaTesis"></tbody>
+    </table>
+  </div>
+  <div class="d-flex justify-content-end mt-3">
+    <nav><ul class="pagination mb-0" id="paginacionTesis"></ul></nav>
+  </div>
+  
+</div>
+
+<!-- Sección: Asesor de Proyecto -->
+<div id="asesorproyecto" class="dashboard-section" style="display: none;">
+  <h4 class="mb-4" style="color: #154172; font-weight: bold; font-size: 1.3rem;">Asesor de Proyectos</h4>
+
+  <!-- Filtro de Búsqueda -->
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <input type="text" id="busquedaProyectoAsesor" class="form-control" placeholder="Buscar por nombre, tema o rol...">
+    </div>
+    <div class="col-md-6 text-end">
+      <select id="ordenarProyectoAsesor" class="form-select w-auto d-inline">
+        <option value="">Ordenar por</option>
+        <option value="año">Año</option>
+        <option value="estado">Estado</option>
+        <option value="rol">Rol</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="text-center">
+        <tr>
+          <th style="background-color: #276bb8; color: white; width: 40px">Año</th>
+          <th style="background-color: #276bb8; color: white; width: 180px">Nombre del Tesista</th>
+          <th style="background-color: #276bb8; color: white; width: 400px">Título del Proyecto</th>
+          <th style="background-color: #276bb8; color: white; width: 50px">Estado</th>
+          <th style="background-color: #276bb8; color: white; width: 100px">Resolución</th>
+        </tr>
+      </thead>
+      <tbody id="tablaProyectoAsesor"></tbody>
+    </table>
+  </div>
+
+  <div class="d-flex justify-content-end mt-3">
+    <nav><ul class="pagination mb-0" id="paginacionProyectoAsesor"></ul></nav>
+  </div>
+</div>
+
+<!-- Sección: Asesor de Tesis -->
+<div id="asesortesis" class="dashboard-section" style="display: none;">
+  <h4 class="mb-4" style="color: #154172; font-weight: bold; font-size: 1.3rem;">Asesor de Tesis</h4>
+
+  <!-- Filtro de Búsqueda -->
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <input type="text" id="busquedaTesisAsesor" class="form-control" placeholder="Buscar por nombre, tema o estado...">
+    </div>
+    <div class="col-md-6 text-end">
+      <select id="ordenarTesisAsesor" class="form-select w-auto d-inline">
+        <option value="">Ordenar por</option>
+        <option value="año">Año</option>
+        <option value="estado">Estado</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="text-center">
+        <tr>
+          <th style="background-color: #276bb8; color: white; width: 40px">Año</th>
+          <th style="background-color: #276bb8; color: white; width: 180px">Nombre del Tesista</th>
+          <th style="background-color: #276bb8; color: white; width: 400px">Título de la Tesis</th>
+          <th style="background-color: #276bb8; color: white; width: 50px">Estado</th>
+          <th style="background-color: #276bb8; color: white; width: 100px">Resolución</th>
+        </tr>
+      </thead>
+      <tbody id="tablaTesisAsesor"></tbody>
+    </table>
+  </div>
+
+  <div class="d-flex justify-content-end mt-3">
+    <nav><ul class="pagination mb-0" id="paginacionTesisAsesor"></ul></nav>
+  </div>
+</div>
 
 
-    </div>
-    </div>
-      <script>
-        function showSection(id) {
+<div id="detalleTesis" class="dashboard-section" style="display: none;"></div>
+    <div id="detalleProyecto" class="dashboard-section" style="display: none"></div>
+
+    <script>
+      function showSection(id) {
         document.querySelectorAll(".dashboard-section").forEach((section) => {
           section.classList.remove("active");
           section.style.display = "none";
@@ -299,7 +486,7 @@
         navbar.classList.toggle("collapsed");
       }
 
-        function cerrarSesion() {
+      function cerrarSesion() {
         Swal.fire({
           icon: "question",
           title: "¿Cerrar sesión?",
@@ -314,6 +501,989 @@
           }
         });
       }
-      </script>
+      // Proyectos simulados para el jurado
+      const proyectosJurado = [
+        {
+          año: 2024,
+          tesista: "Josep Nelly Cárdenas Charry",
+          titulo: "Evaluación del desarrollo y rendimiento del cultivo de Maíz (Zea mays L.) utilizando cinco híbridos en el Alto Huallaga",
+          rol: "Presidente",
+          estado: "aprobado",
+          resolucion: "Resolución Nº 143-2023-UNSM/FCA",
+          email: "jonecarc@alumno.unsm.edu.pe",
+          celular: "942963489",
+          asesor: "Ing. M.Sc. Elias Torres Flores",
+          presidnete:"Ing. M.Sc. Harry Saavedra Alva",
+          secretario:"Ing. M.Sc. Luis Alberto Ordoñez Sánchez",
+          vocal:"Dra. Patricia Elena Garcia Gonzales",
+        },
+        {
+          año: 2024,
+          tesista: "Jefferson Brayan Piundo Pino",
+          titulo: "Asociaciones y su influencia en el manejo de palma (Elaeis guineensis) en la provincia de Tocache, 2025",
+          rol: "Presidente",
+          estado: "en revision",
+          resolucion: "",
+          email: "jebrapp@alumno.unsm.edu.pe",
+          celular: "948496322",
+          asesor: "Ing. M.Sc. Tedy Castillo Díaz",
+          presidnete:"Ing. M.Sc. Harry Saavedra Alva",
+          secretario:"Ing. M.Sc. Luis Alberto Ordoñez Sánchez",
+          vocal:"Blgo. M.Sc. Oscar Rojas Sánchez",
+        },
+        {
+          año: 2024,
+          tesista: "Jllef Kim Rios Puyo",
+          titulo: "Fluctuación poblacional de la mosca del ovario (Dasiops inedulis Steyskal) en Maracuyá, Alto Mayo, San Martín",
+          rol: "Secretario",
+          estado: "aprobado",
+          resolucion: "Resolución Nº 330-2024-UNSM/FCA/CF",
+          email: "jkriosp@alumno.unsm.edu.pe",
+          celular: "952591696"
+        },
+        {
+          año: 2024,
+          tesista: "Jans Tevenet Ramirez Ramirez",
+          titulo: "Importancia funcional de los insectos fitófagos y enemigos naturales en guanábana (Annona muricata L.) en el nororiente peruano",
+          rol: "Secretario",
+          estado: "aprobado",
+          resolucion: "Resolución 438-2024-UNSM/FCA/CF",
+          email: "jtramirez@alumno.unsm.edu.pe",
+          celular: "952591696"
+        },
+        {
+          año: 2024,
+          tesista: "Jhon Villigran Flores Malla",
+          titulo: "Evaluación integral del cultivo de maíz amarillo duro en la provincia de Tocache de la región San Martín",
+          rol: "Secretario",
+          estado: "aprobado",
+          resolucion: "Resolución Nº 440-2024-UNSM/FCA/CF",
+          email: "jvflores@alumno.unsm.edu.pe",
+          celular: "952591696"
+        },
+        {
+          año: 2024,
+          tesista: "Jeninfer Juliana Macedo Mori",
+          titulo: "Entomofauna asociada al cultivo de maracuyá (Passiflora edulis) en San Martín",
+          rol: "Vocal",
+          estado: "aprobado",
+          resolucion: "Resolución Nº 439-2024-UNSM/FCA/CF",
+          email: "jjmacedom@alumno.unsm.edu.pe",
+          celular: "913456789"
+        },
+        {
+          año: 2024,
+          tesista: "Neptali Rogelio Julca Huancas",
+          titulo: "Altas densidades en el rendimiento del maíz variedad Atlas 777, distrito de Juan Guerra, provincia San Martín - 2024",
+          rol: "Vocal",
+          estado: "aprobado",
+          resolucion: "Resolución Nº 521-2024-UNSM/FCA/CF",
+          email: "nrjulcah@alumno.unsm.edu.pe",
+          celular: "914567890"
+        },
+        {
+          año: 2024,
+          tesista: "Yan Carlos Oré Vela",
+          titulo: "Comparativo de híbridos de maíz amarillo duro en la EEA el Porvenir INIA, distrito de Juan Guerra",
+          rol: "Vocal",
+          estado: "aprobado",
+          resolucion: "Resolución Nº 364-2024-UNSM/FCA/CF",
+          email: "ycorev@alumno.unsm.edu.pe",
+          celular: "915678901"
+        },
+        {
+          año: 2024,
+          tesista: "David García Peña",
+          titulo: "Caracterización agronómica de líneas promisorias y variedades de arroz (Oryza sativa L.) irrigado en Alto Amazonas-Yurimaguas",
+          rol: "Vocal",
+          estado: "aprobado",
+          resolucion: "Resolución Nº 032-2025-UNSM/FCA/CF",
+          email: "dgarciap@alumno.unsm.edu.pe",
+          celular: "916789012"
+        },
+        {
+          año: 2024,
+          tesista: "Jacson Mijael Torres Pisco",
+          titulo: "Aplicación de cal líquida en diferentes momentos sobre el rendimiento del maní en suelos ácidos de Tarapoto – San Martín",
+          rol: "Vocal",
+          estado: "aprobado",
+          resolucion: "Resolución Nº 436-2024-UNSM/FCA/CF",
+          email: "jmtorresp@alumno.unsm.edu.pe",
+          celular: "917890123"
+        },
+        {
+          año: 2024,
+          tesista: "Jhonatan Sanchez Mego",
+          titulo: "Protocolos de enmienda-fertilización en torno a la respuesta agronómica de la arracacha (Arracacia xantorrhiza Bancroft) “amarilla”, en la selva peruana",
+          rol: "Vocal",
+          estado: "en revisión",
+          resolucion: "Resolución Nº 413-2024-UNSM/FCA/CF",
+          email: "jsanchezm@alumno.unsm.edu.pe",
+          celular: "918234567"
+        },
+        {
+          año: 2024,
+          tesista: "Jesús Xavier Quintos Livaque",
+          titulo: "Efecto de reguladores de crecimiento sobre el brotamiento de bambú verde (Guadua angustifolia Kunth) bajo condiciones de vivero",
+          rol: "Vocal",
+          estado: "en revisión",
+          resolucion: "Resolución Nº 420-2024-UNSM/FCA/CF",
+          email: "jxquintosl@alumno.unsm.edu.pe",
+          celular: "918345678"
+        },
+        {
+          año: 2024,
+          tesista: "Jimena Yurneth Montenegro Tello",
+          titulo: "Génesis de suelos formado de rocas sedimentarias en la Sub cuenca del Cumbaza, San Martín, Perú",
+          rol: "Vocal",
+          estado: "en revisión",
+          resolucion: "Resolución Nº 421-2024-UNSM/FCA/CF",
+          email: "jymontenegro@alumno.unsm.edu.pe",
+          celular: "918456789"
+        },
+        {
+          año: 2024,
+          tesista: "Reyser Leandro Vasquez Paima",
+          titulo: "Efecto de la cobertura de coco para reducir el estrés hídrico en una plantación temprana de cacao (Theobroma cacao L.) en Huallaga Central, Pucacaca",
+          rol: "Vocal",
+          estado: "en revisión",
+          resolucion: "Resolución Nº 497-2024-UNSM/FCA/CF",
+          email: "rlvasquezp@alumno.unsm.edu.pe",
+          celular: "918567890"
+        },
+        {
+          año: 2025,
+          tesista: "Werner Piña Pinedo",
+          titulo: "Evaluación del Impacto Socioeconómico de la Producción de Café en la asociación de productores ecológicos Café del Alto Mayo",
+          rol: "Vocal",
+          estado: "en revisión",
+          resolucion: "Resolución Nº 005-2025-UNSM/FCA/CF",
+          email: "wpinap@alumno.unsm.edu.pe",
+          celular: "918678901"
+        }
+      ];
+
+      // Proyectos simulados para el jurado
+      const tesisJurado = [
+        {
+          año: 2024,
+          tesista: "Josep Nelly Cárdenas Charry",
+          titulo: "Evaluación del desarrollo y rendimiento del cultivo de Maíz (Zea mays L.) utilizando cinco híbridos en el Alto Huallaga",
+          rol: "Presidente",
+          estado: "aprobado",
+          resolucion: "Resolución Nº 143-2023-UNSM/FCA",
+          email: "jonecarc@alumno.unsm.edu.pe",
+          celular: "942963489",
+          asesor: "Ing. M.Sc. Elias Torres Flores",
+          presidnete:"Ing. M.Sc. Harry Saavedra Alva",
+          secretario:"Ing. M.Sc. Luis Alberto Ordoñez Sánchez",
+          vocal:"Dra. Patricia Elena Garcia Gonzales",
+        },
+        
+        {
+          año: 2024,
+          tesista: "Jllef Kim Rios Puyo",
+          titulo: "Fluctuación poblacional de la mosca del ovario (Dasiops inedulis Steyskal) en Maracuyá, Alto Mayo, San Martín",
+          rol: "Secretario",
+          estado: "aprobado",
+          resolucion: "Resolución Nº 330-2024-UNSM/FCA/CF",
+          email: "jkriosp@alumno.unsm.edu.pe",
+          celular: "952591696"
+        },
+        {
+          año: 2024,
+          tesista: "Jans Tevenet Ramirez Ramirez",
+          titulo: "Importancia funcional de los insectos fitófagos y enemigos naturales en guanábana (Annona muricata L.) en el nororiente peruano",
+          rol: "Secretario",
+          estado: "aprobado",
+          resolucion: "Resolución 438-2024-UNSM/FCA/CF",
+          email: "jtramirez@alumno.unsm.edu.pe",
+          celular: "952591696"
+        },
+        {
+          año: 2024,
+          tesista: "Jhon Villigran Flores Malla",
+          titulo: "Evaluación integral del cultivo de maíz amarillo duro en la provincia de Tocache de la región San Martín",
+          rol: "Secretario",
+          estado: "aprobado",
+          resolucion: "Resolución Nº 440-2024-UNSM/FCA/CF",
+          email: "jvflores@alumno.unsm.edu.pe",
+          celular: "952591696"
+        },
+        {
+          año: 2024,
+          tesista: "Jeninfer Juliana Macedo Mori",
+          titulo: "Entomofauna asociada al cultivo de maracuyá (Passiflora edulis) en San Martín",
+          rol: "Vocal",
+          estado: "aprobado",
+          resolucion: "Resolución Nº 439-2024-UNSM/FCA/CF",
+          email: "jjmacedom@alumno.unsm.edu.pe",
+          celular: "913456789"
+        },
+        {
+          año: 2024,
+          tesista: "Neptali Rogelio Julca Huancas",
+          titulo: "Altas densidades en el rendimiento del maíz variedad Atlas 777, distrito de Juan Guerra, provincia San Martín - 2024",
+          rol: "Vocal",
+          estado: "aprobado",
+          resolucion: "Resolución Nº 521-2024-UNSM/FCA/CF",
+          email: "nrjulcah@alumno.unsm.edu.pe",
+          celular: "914567890"
+        },
+        {
+          año: 2024,
+          tesista: "Yan Carlos Oré Vela",
+          titulo: "Comparativo de híbridos de maíz amarillo duro en la EEA el Porvenir INIA, distrito de Juan Guerra",
+          rol: "Vocal",
+          estado: "aprobado",
+          resolucion: "Resolución Nº 364-2024-UNSM/FCA/CF",
+          email: "ycorev@alumno.unsm.edu.pe",
+          celular: "915678901"
+        },
+        {
+          año: 2024,
+          tesista: "David García Peña",
+          titulo: "Caracterización agronómica de líneas promisorias y variedades de arroz (Oryza sativa L.) irrigado en Alto Amazonas-Yurimaguas",
+          rol: "Vocal",
+          estado: "aprobado",
+          resolucion: "Resolución Nº 032-2025-UNSM/FCA/CF",
+          email: "dgarciap@alumno.unsm.edu.pe",
+          celular: "916789012"
+        },
+        {
+          año: 2024,
+          tesista: "Jacson Mijael Torres Pisco",
+          titulo: "Aplicación de cal líquida en diferentes momentos sobre el rendimiento del maní en suelos ácidos de Tarapoto – San Martín",
+          rol: "Vocal",
+          estado: "aprobado",
+          resolucion: "Resolución Nº 436-2024-UNSM/FCA/CF",
+          email: "jmtorresp@alumno.unsm.edu.pe",
+          celular: "917890123"
+        },
+      ];
+
+            // Proyectos simulados para el jurado
+      const tesisAsesor = [
+        {
+          año: 2024,
+          tesista: "Yosdani Olano Delgado",
+          titulo: "Asociatividad y su relación con factores socioeconómicos en productores cafetaleros, distrito Alonso de Alvarado, provincia de Lamas - 2024",
+          estado: "aprobado",
+          resolucion: "Resolución Nº 143-2023-UNSM/FCA",
+          email: "josod@alumno.unsm.edu.pe",
+          celular: "942963489",
+          asesor: "Ing. M.Sc. Harry Saavedra Alva",
+          presidnete:"Dra. Patricia Elena Garcia Gonzales",
+          secretario:"Dr. Santos Alberto Sotero Montero",
+          vocal:"Ing. M.Sc. Luis Alberto Ordoñez Sánchezs",
+        }
+      ];
+
+            // Proyectos simulados para el jurado
+      const proyectoAsesor= [
+          {
+          año: 2024,
+          tesista: "Yosdani Olano Delgado",
+          titulo: "Asociatividad y su relación con factores socioeconómicos en productores cafetaleros, distrito Alonso de Alvarado, provincia de Lamas - 2024",
+          estado: "aprobado",
+          resolucion: "Resolución Nº 143-2023-UNSM/FCA",
+          email: "josod@alumno.unsm.edu.pe",
+          celular: "942963489",
+          asesor: "Ing. M.Sc. Harry Saavedra Alva",
+          presidnete:"Dra. Patricia Elena Garcia Gonzales",
+          secretario:"Dr. Santos Alberto Sotero Montero",
+          vocal:"Ing. M.Sc. Luis Alberto Ordoñez Sánchezs",
+        },
+        {
+          año: 2024,
+          tesista: "Luis Gustavo Perez Gomez",
+          titulo: "Efecto de Bacillus subtilis en la floración y el rendimiento del cultivo de limón (Citrus limon L.)",
+          estado: "en revision",
+          resolucion: "",
+        },
+                {
+          año: 2025,
+          tesista: "Hans Garcia Navarro",
+          titulo: "Agroquímicos y su relación con factores sociodemográficos en el cultivo de maíz (Zea mays) en la provincia de Picota, 2024",
+          estado: "en revision",
+          resolucion: "",
+        },
+         {
+          año: 2025,
+          tesista: "Alicia Cordova Roman",
+          titulo: "Agroquímicos y su relación con factores sociodemográficos en el cultivo de maíz (Zea mays) en la provincia de Picota, 2024",
+          estado: "en revision",
+          resolucion: "",
+        },
+        {
+          año: 2025,
+          tesista: "Irduen Herrera Díaz",
+          titulo: "Gallinaza y su efecto en el rendimiento de tomate (Lycopersicum esculentum L.), bajo condiciones del Alto Huallaga - Tocache",
+          estado: "en revision",
+          resolucion: "",
+        },
+      {
+          año: 2025,
+          tesista: "Marlon Herrera Acosta",
+          titulo: "Roca fosfórica de bayovar y su efecto en el rendimiento de tomate (Lycopersicum esculentum L.), en condiciones de Alto Huallaga - Tocache",
+          estado: "en revision",
+          resolucion: "",
+        },
+      {
+          año: 2025,
+          tesista: "Deybi Julio Villanueva Pantoja",
+          titulo: "Fertilización mineral y organomineral en el cultivo de cacao en condiciones de campo en la provincia de Tocache, región San Martín",
+          estado: "en revision",
+          resolucion: "",
+        },
+      {
+          año: 2025,
+          tesista: "Brando Sánchez Vásquez",
+          titulo: "Asociatividad y su influencia en el rendimiento de cacao, distrito de San Martín de Alao, provincia de El Dorado, 2025",
+          estado: "en revision",
+          resolucion: "",
+        },
+                {
+          año: 2024,
+          tesista: "Erick Waldir López Panduro",
+          titulo: "Impacto Económico y social del cultivo de palma aceitera (Elaeis guineensis), distrito Campoverde provincia Coronel Portillo departamento Ucayali - 2024",
+          estado: "en revision",
+          resolucion: "",
+        },
+                {
+          año: 2024,
+          tesista: "Adam Menger Vilchez Dávila",
+          titulo: "Impacto económico y social de la producción de cacao en los socios de la Cooperativa Agraria APAHUI, Mariscal Cáceres, 2024",
+          estado: "en revision",
+          resolucion: "",
+        },
+         {
+          año: 2024,
+          tesista: "Dennis Kenifer Correa Saldaña",
+          titulo: "Impacto de la asociatividad en productores de sacha inchi en la provincia de Lamas, San Martín 2024",
+          estado: "en revision",
+          resolucion: "",
+        },
+        {
+          año: 2024,
+          tesista: "Lesly Talia Ortiz Aguirre",
+          titulo: "Influencia de la Asociación desarrollo sostenible y conservación Ricardo Palma, en mejora económica y social de socios cacaoteros, Mariscal Cáceres, 2024",
+          estado: "en revision",
+          resolucion: "",
+        },
+      ];
+
+
+      const proyectosPorPagina = 5;
+      const tesisPorPagina = 5;
+      let paginaActual = 1;
+   
+
+      function cargarTablaProyectos() {
+        const tbody = document.getElementById("tablaProyectos");
+        const filtro = document.getElementById("busquedaProyecto").value.toLowerCase();
+        const ordenarPor = document.getElementById("ordenarPor").value;
+
+        let filtrados = proyectosJurado.filter(p =>
+          p.tesista.toLowerCase().includes(filtro) ||
+          p.titulo.toLowerCase().includes(filtro) ||
+          p.rol.toLowerCase().includes(filtro)
+        );
+
+        if (ordenarPor) {
+          filtrados.sort((a, b) => {
+            if (ordenarPor === "año") return b.año - a.año;
+            return a[ordenarPor].localeCompare(b[ordenarPor]);
+          });
+        }
+
+        const totalPaginas = Math.ceil(filtrados.length / proyectosPorPagina);
+        const inicio = (paginaActual - 1) * proyectosPorPagina;
+        const proyectosPagina = filtrados.slice(inicio, inicio + proyectosPorPagina);
+
+        tbody.innerHTML = "";
+        proyectosPagina.forEach(proyecto => {
+          const fila = document.createElement("tr");
+          fila.innerHTML = `
+        <td>${proyecto.año}</td>
+        <td>${proyecto.tesista}</td>
+        <td>${proyecto.titulo}</td>
+        <td class="text-center">
+  <span class="badge" style="background-color: #154172; color: white; padding: 0.4em 0.75em; border-radius: 0.5rem;">
+    ${proyecto.rol}
+  </span>
+</td>
+
+        <td class="text-center">
+          ${proyecto.estado === "aprobado"
+              ? '<span class="badge bg-success">Aprobado</span>'
+              : proyecto.estado === "observado"
+                ? '<span class="badge bg-danger">Observado</span>'
+                : '<span class="badge bg-warning text-dark">En revisión</span>'}
+        </td>
+        <td><a href="#">${proyecto.resolucion}</a></td>
+        <td class="text-center">
+          <button class="btn btn-sm btn-outline-primary" onclick="verObservaciones('${proyecto.tesista}')">
+  <i class="fas fa-eye"></i> Ver Detalles
+</button>
+
+        </td>
+      `;
+          tbody.appendChild(fila);
+        });
+
+        cargarPaginacion(totalPaginas);
+      }
+
+      function cargarPaginacion(total) {
+        const paginacion = document.getElementById("paginacion");
+        paginacion.innerHTML = "";
+
+        const crearItem = (label, pagina, activa = false, deshabilitada = false) => {
+          const li = document.createElement("li");
+          li.className = `page-item ${activa ? "active" : ""} ${deshabilitada ? "disabled" : ""}`;
+          li.innerHTML = `<a class="page-link" href="#">${label}</a>`;
+          li.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (!deshabilitada && pagina !== paginaActual) {
+              paginaActual = pagina;
+              cargarTablaProyectos();
+            }
+          });
+          return li;
+        };
+
+        // Botón Anterior
+        paginacion.appendChild(crearItem("« Anterior", paginaActual - 1, false, paginaActual === 1));
+
+        const maxVisible = 5;
+        let start = Math.max(1, paginaActual - 2);
+        let end = Math.min(total, start + maxVisible - 1);
+
+        if (end - start < maxVisible - 1) {
+          start = Math.max(1, end - maxVisible + 1);
+        }
+
+        for (let i = start; i <= end; i++) {
+          paginacion.appendChild(crearItem(i, i, i === paginaActual));
+        }
+
+        paginacion.appendChild(crearItem("Siguiente »", paginaActual + 1, false, paginaActual === total));
+      }
+
+
+      document.getElementById("busquedaProyecto").addEventListener("input", () => {
+        paginaActual = 1;
+        cargarTablaProyectos();
+      });
+      document.getElementById("ordenarPor").addEventListener("change", () => {
+        paginaActual = 1;
+        cargarTablaProyectos();
+      });
+      document.addEventListener("DOMContentLoaded", cargarTablaProyectos);
+
+      function verObservaciones(nombreTesista) {
+  const proyecto = proyectosJurado.find(p => p.tesista === nombreTesista);
+  if (!proyecto) return;
+
+  // Ocultar otras secciones
+  document.querySelectorAll(".dashboard-section").forEach(section => {
+    section.classList.remove("active");
+    section.style.display = "none";
+  });
+  
+
+  // === Sección dinámica de Rondas de Observaciones según estado ===
+  let contenidoObservaciones = "";
+
+if (proyecto.estado === "en revision") {
+  contenidoObservaciones = `
+   <div class="row">
+  <div class="col-md-12">
+    <div class="border rounded p-4 mb-3 bg-light shadow-sm">
+      <h6 class="fw-bold mb-3 text-primary">
+        <i class="fas fa-file-signature me-2"></i> Evaluación del Jurado
+      </h6>
+
+      <!-- Selector de decisión -->
+      <div class="mb-3">
+        <label for="accionEvaluacion" class="form-label fw-semibold">Decisión del Jurado:</label>
+        <select class="form-select" id="accionEvaluacion">
+          <option value="">-- Selecciona una opción --</option>
+          <option value="aprobar">Aprobar</option>
+          <option value="observar">Observar</option>
+        </select>
+      </div>
+
+      <!-- Botón de aprobar -->
+      <div id="botonAprobar" class="mb-3 d-none">
+        <button id="btnAprobar" class="btn btn-success w-100">
+          <i class="fas fa-check-circle me-1"></i> Confirmar Aprobación
+        </button>
+      </div>
+
+      <!-- Enlace para descargar formato -->
+      <div class="mb-3 d-none" id="formatoCarta">
+        <a href="/formatos/formato_carta_observacion.pdf" target="_blank" class="btn btn-outline-primary w-100">
+          <i class="fas fa-download me-1"></i> Descargar Formato de Carta de Observación
+        </a>
+      </div>
+
+      <!-- Formulario de observación -->
+      <form id="formObservacion" class="d-none">
+        <div class="mb-3">
+          <label for="archivoObservacion" class="form-label fw-semibold">Archivo PDF:</label>
+          <input type="file" class="form-control" id="archivoObservacion" accept="application/pdf" required>
+        </div>
+        <div class="mb-3">
+          <label for="mensajeObservacion" class="form-label fw-semibold">Mensaje (opcional):</label>
+          <textarea class="form-control" id="mensajeObservacion" rows="3" placeholder="Escribe un mensaje adicional si lo deseas..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="fas fa-paper-plane me-1"></i> Enviar Observación
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+  `;
+
+  } else {
+    // Para "aprobado" y "observado"
+    const color = proyecto.estado === "aprobado" ? 'text-success' : 'text-danger';
+    contenidoObservaciones = `
+      <div class="row">
+        <div class="col-md-4">
+          <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+            <p class="fw-bold text-white p-2 rounded" style="background-color: #0056b3;">${proyecto.presidnete} (Presidente)</p>
+            <div class="${color} fw-semibold"><i class="fas fa-check-circle"></i> Aprobado (Ronda 1)</div>
+            <a href="/formatos/ver_carta.pdf" target="_blank" class="d-block text-center fw-semibold text-decoration-none" style="color: #154172">Ver Carta</a>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+            <p class="fw-bold text-white p-2 rounded" style="background-color: #0056b3;">${proyecto.secretario} (Secretario)</p>
+            <div class="${color} fw-semibold"><i class="fas fa-check-circle"></i> Aprobado (Ronda 1)</div>
+            <a href="/formatos/ver_carta.pdf" target="_blank" class="d-block text-center fw-semibold text-decoration-none" style="color: #154172">Ver Carta</a>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+            <p class="fw-bold text-white p-2 rounded" style="background-color: #0056b3;">${proyecto.vocal} (Vocal)</p>
+            <div class="${color} fw-semibold"><i class="fas fa-check-circle"></i> Aprobado (Ronda 1)</div>
+            <a href="/formatos/ver_carta.pdf" target="_blank" class="d-block text-center fw-semibold text-decoration-none" style="color: #154172">Ver Carta</a>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // === Contenido completo del detalle ===
+  const detalleDiv = document.getElementById("detalleProyecto");
+  detalleDiv.innerHTML = `
+  <button class="btn btn-sm" onclick="volverATabla()" style="background-color: #154172; color: white; border-radius: 0.4rem;">
+  <i class="fas fa-arrow-left me-1"></i> Volver a Proyectos
+</button>
+
+    <h4 class="mb-4" style="color: #154172; font-weight: bold; font-size: 1.3rem;"></h4>
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <h5 style="color: #154172"><i class="fas fa-file-alt me-2"></i>"${proyecto.titulo}"</h5>
+        <p class="mb-1 text-muted">Tesista: <strong>${proyecto.tesista}</strong></p>
+        <p class="mb-1 text-muted">Correo: <strong>${proyecto.email}</strong></p>
+        <p class="mb-1 text-muted">Telefono: <strong>${proyecto.celular}</strong></p>
+        <p class="mb-1 text-muted">Asesor: <strong>${proyecto.asesor}</strong></p>
+        <p class="mb-1 text-muted">Estado del Proyecto:
+          <span class="badge ${proyecto.estado === 'aprobado' ? 'bg-success' : proyecto.estado === 'observado' ? 'bg-danger' : 'bg-warning text-dark'}">
+            ${proyecto.estado.charAt(0).toUpperCase() + proyecto.estado.slice(1)}
+          </span>
+        </p>
+        <a href="#" class="btn btn-sm btn-outline-primary mt-2">
+          <i class="fas fa-download"></i> Descargar Proyecto de Tesis (Versión: 06/08/2024)
+        </a>
+        <div class="mt-4">
+          <h6 class="fw-bold mb-3 text-success">Resolución</h6>
+          <ul style="padding-left: 20px; font-size: 0.90rem">
+            <li>${proyecto.resolucion}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mt-4">
+      <div class="card-body">
+        <h6 class="fw-bold mb-3" style="color: #154172"><i class="fas fa-users"></i> Rondas de Observaciones</h6>
+        ${contenidoObservaciones}
+      </div>
+    </div>
+  `;
+
+  // Mostrar la sección
+  detalleDiv.style.display = "block";
+  detalleDiv.classList.add("active");
+
+  // Asociar evento al formulario solo si existe (es dinámico)
+  const accionEvaluacion = document.getElementById("accionEvaluacion");
+const formObservacion = document.getElementById("formObservacion");
+const formatoCarta = document.getElementById("formatoCarta");
+const botonAprobar = document.getElementById("botonAprobar");
+
+accionEvaluacion.addEventListener("change", function () {
+  const opcion = this.value;
+
+  if (opcion === "observar") {
+    formObservacion.classList.remove("d-none");
+    formatoCarta.classList.remove("d-none");
+    botonAprobar.classList.add("d-none");
+  } else if (opcion === "aprobar") {
+    formObservacion.classList.add("d-none");
+    formatoCarta.classList.add("d-none");
+    botonAprobar.classList.remove("d-none");
+  } else {
+    formObservacion.classList.add("d-none");
+    formatoCarta.classList.add("d-none");
+    botonAprobar.classList.add("d-none");
+  }
+});
+
+document.getElementById("btnAprobar").addEventListener("click", () => {
+  Swal.fire({
+    icon: 'success',
+    title: 'Proyecto Aprobado',
+    text: 'Has marcado este proyecto como aprobado.',
+    confirmButtonColor: '#154172'
+  });
+});
+
+formObservacion.addEventListener("submit", function (e) {
+  e.preventDefault();
+  const archivo = document.getElementById("archivoObservacion").files[0];
+  if (!archivo) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Falta el archivo',
+      text: 'Por favor selecciona un archivo PDF antes de enviar.',
+      confirmButtonColor: '#154172'
+    });
+    return;
+  }
+
+  Swal.fire({
+    icon: 'success',
+    title: 'Observación enviada',
+    text: 'La carta fue enviada correctamente. El estado ha cambiado a "Esperando respuesta del tesista".',
+    confirmButtonColor: '#154172'
+  }).then(() => {
+    const badge = document.querySelector('#detalleProyecto .badge');
+    if (badge) {
+      badge.className = 'badge bg-info text-dark';
+      badge.textContent = 'Esperando respuesta del tesista';
+    }
+
+    formObservacion.parentElement.innerHTML = `
+      <div class="alert alert-info text-center mb-0">
+        Carta enviada. En espera de respuesta del tesista.
+      </div>`;
+  });
+});
+
+}
+function volverATabla() {
+  document.querySelectorAll(".dashboard-section").forEach(section => {
+    section.classList.remove("active");
+    section.style.display = "none";
+  });
+
+  const tabla = document.getElementById("proyecto");
+  tabla.style.display = "block";
+  tabla.classList.add("active");
+}
+
+
+
+      function cargarTablaTesis() {
+  const tbody = document.getElementById("tablaTesis");
+  const filtro = document.getElementById("busquedaTesis").value.toLowerCase();
+  const ordenarPor = document.getElementById("ordenarPor").value;
+
+  let filtrados = tesisJurado.filter(t =>
+    t.tesista.toLowerCase().includes(filtro) ||
+    t.titulo.toLowerCase().includes(filtro) ||
+    t.rol.toLowerCase().includes(filtro)
+  );
+
+  if (ordenarPor) {
+    filtrados.sort((a, b) => {
+      if (ordenarPor === "año") return b.año - a.año;
+      return a[ordenarPor].localeCompare(b[ordenarPor]);
+    });
+  }
+
+  const totalPaginas = Math.ceil(filtrados.length / tesisPorPagina);
+  const inicio = (paginaActual - 1) * tesisPorPagina;
+  const tesisPagina = filtrados.slice(inicio, inicio + tesisPorPagina);
+
+  tbody.innerHTML = "";
+  tesisPagina.forEach(tesis => {
+    const fila = document.createElement("tr");
+    fila.innerHTML = `
+      <td>${tesis.año}</td>
+      <td>${tesis.tesista}</td>
+      <td>${tesis.titulo}</td>
+      <td class="text-center">
+        <span class="badge" style="background-color: #154172; color: white; padding: 0.4em 0.75em; border-radius: 0.5rem;">
+          ${tesis.rol}
+        </span>
+      </td>
+      <td class="text-center">
+        ${tesis.estado === "aprobado"
+          ? '<span class="badge bg-success">Aprobado</span>'
+          : tesis.estado === "observado"
+            ? '<span class="badge bg-danger">Observado</span>'
+            : '<span class="badge bg-warning text-dark">En revisión</span>'}
+      </td>
+      <td><a href="#">${tesis.resolucion}</a></td>
+      <td class="text-center">
+        <button class="btn btn-sm btn-outline-primary" onclick="verObservacionesTesis('${tesis.tesista}')">
+          <i class="fas fa-eye"></i> Ver Detalles
+        </button>
+      </td>
+    `;
+    tbody.appendChild(fila);
+  });
+
+  cargarPaginacionTesis(totalPaginas);
+}
+
+function cargarPaginacionTesis(total) {
+  const paginacion = document.getElementById("paginacionTesis");
+  paginacion.innerHTML = "";
+
+  const crearItem = (label, pagina, activa = false, deshabilitada = false) => {
+    const li = document.createElement("li");
+    li.className = `page-item ${activa ? "active" : ""} ${deshabilitada ? "disabled" : ""}`;
+    li.innerHTML = `<a class="page-link" href="#">${label}</a>`;
+    li.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (!deshabilitada && pagina !== paginaActual) {
+        paginaActual = pagina;
+        cargarTablaTesis();
+      }
+    });
+    return li;
+  };
+
+  paginacion.appendChild(crearItem("« Anterior", paginaActual - 1, false, paginaActual === 1));
+
+  const maxVisible = 5;
+  let start = Math.max(1, paginaActual - 2);
+  let end = Math.min(total, start + maxVisible - 1);
+  if (end - start < maxVisible - 1) {
+    start = Math.max(1, end - maxVisible + 1);
+  }
+
+  for (let i = start; i <= end; i++) {
+    paginacion.appendChild(crearItem(i, i, i === paginaActual));
+  }
+
+  paginacion.appendChild(crearItem("Siguiente »", paginaActual + 1, false, paginaActual === total));
+}
+document.getElementById("busquedaTesis").addEventListener("input", () => {
+  paginaActual = 1;
+  cargarTablaTesis();
+});
+
+document.getElementById("ordenarPor").addEventListener("change", () => {
+  paginaActual = 1;
+  cargarTablaTesis();
+});
+
+document.addEventListener("DOMContentLoaded", cargarTablaTesis);
+
+// === Tabla Asesor de Tesis ===
+function cargarTablaTesisAsesor() {
+  const tbody = document.getElementById("tablaTesisAsesor");
+  const filtro = document.getElementById("busquedaTesisAsesor").value.toLowerCase();
+  const ordenarPor = document.getElementById("ordenarTesisAsesor").value;
+
+  let filtrados = tesisAsesor.filter(t =>
+    t.tesista.toLowerCase().includes(filtro) ||
+    t.titulo.toLowerCase().includes(filtro)
+  );
+
+  if (ordenarPor) {
+    filtrados.sort((a, b) => {
+      if (ordenarPor === "año") return b.año - a.año;
+      return a[ordenarPor].localeCompare(b[ordenarPor]);
+    });
+  }
+
+  const totalPaginas = Math.ceil(filtrados.length / tesisPorPagina);
+  const inicio = (paginaActual - 1) * tesisPorPagina;
+  const tesisPagina = filtrados.slice(inicio, inicio + tesisPorPagina);
+
+  tbody.innerHTML = "";
+  tesisPagina.forEach(tesis => {
+    const fila = document.createElement("tr");
+    fila.innerHTML = `
+      <td>${tesis.año}</td>
+      <td>${tesis.tesista}</td>
+      <td>${tesis.titulo}</td>
+      <td class="text-center">
+        ${tesis.estado === "aprobado"
+          ? '<span class="badge bg-success">Aprobado</span>'
+          : tesis.estado === "observado"
+            ? '<span class="badge bg-danger">Observado</span>'
+            : '<span class="badge bg-warning text-dark">En revisión</span>'}
+      </td>
+      <td><a href="#">${tesis.resolucion}</a></td>
+    `;
+    tbody.appendChild(fila);
+  });
+
+  cargarPaginacionTesisAsesor(totalPaginas);
+}
+
+function cargarPaginacionTesisAsesor(total) {
+  const paginacion = document.getElementById("paginacionTesisAsesor");
+  paginacion.innerHTML = "";
+
+  const crearItem = (label, pagina, activa = false, deshabilitada = false) => {
+    const li = document.createElement("li");
+    li.className = `page-item ${activa ? "active" : ""} ${deshabilitada ? "disabled" : ""}`;
+    li.innerHTML = `<a class="page-link" href="#">${label}</a>`;
+    li.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (!deshabilitada && pagina !== paginaActual) {
+        paginaActual = pagina;
+        cargarTablaTesisAsesor();
+      }
+    });
+    return li;
+  };
+
+  paginacion.appendChild(crearItem("« Anterior", paginaActual - 1, false, paginaActual === 1));
+
+  const maxVisible = 5;
+  let start = Math.max(1, paginaActual - 2);
+  let end = Math.min(total, start + maxVisible - 1);
+  if (end - start < maxVisible - 1) {
+    start = Math.max(1, end - maxVisible + 1);
+  }
+
+  for (let i = start; i <= end; i++) {
+    paginacion.appendChild(crearItem(i, i, i === paginaActual));
+  }
+
+  paginacion.appendChild(crearItem("Siguiente »", paginaActual + 1, false, paginaActual === total));
+}
+
+document.getElementById("busquedaTesisAsesor").addEventListener("input", () => {
+  paginaActual = 1;
+  cargarTablaTesisAsesor();
+});
+
+document.getElementById("ordenarTesisAsesor").addEventListener("change", () => {
+  paginaActual = 1;
+  cargarTablaTesisAsesor();
+});
+
+document.addEventListener("DOMContentLoaded", cargarTablaTesisAsesor);
+
+
+// === Tabla Asesor de Proyecto ===
+function cargarTablaProyectoAsesor() {
+  const tbody = document.getElementById("tablaProyectoAsesor");
+  const filtro = document.getElementById("busquedaProyectoAsesor").value.toLowerCase();
+  const ordenarPor = document.getElementById("ordenarProyectoAsesor").value;
+
+  let filtrados = proyectoAsesor.filter(p =>
+    p.tesista.toLowerCase().includes(filtro) ||
+    p.titulo.toLowerCase().includes(filtro)
+  );
+
+  if (ordenarPor) {
+    filtrados.sort((a, b) => {
+      if (ordenarPor === "año") return b.año - a.año;
+      return a[ordenarPor].localeCompare(b[ordenarPor]);
+    });
+  }
+
+  const totalPaginas = Math.ceil(filtrados.length / proyectosPorPagina);
+  const inicio = (paginaActual - 1) * proyectosPorPagina;
+  const proyectosPagina = filtrados.slice(inicio, inicio + proyectosPorPagina);
+
+  tbody.innerHTML = "";
+  proyectosPagina.forEach(p => {
+    const fila = document.createElement("tr");
+    fila.innerHTML = `
+      <td>${p.año}</td>
+      <td>${p.tesista}</td>
+      <td>${p.titulo}</td>
+      <td class="text-center">
+        ${p.estado === "aprobado"
+          ? '<span class="badge bg-success">Aprobado</span>'
+          : p.estado === "observado"
+            ? '<span class="badge bg-danger">Observado</span>'
+            : '<span class="badge bg-warning text-dark">En revisión</span>'}
+      </td>
+      <td><a href="#">${p.resolucion}</a></td>
+    `;
+    tbody.appendChild(fila);
+  });
+
+  cargarPaginacionProyectoAsesor(totalPaginas);
+}
+
+function cargarPaginacionProyectoAsesor(total) {
+  const paginacion = document.getElementById("paginacionProyectoAsesor");
+  paginacion.innerHTML = "";
+
+  const crearItem = (label, pagina, activa = false, deshabilitada = false) => {
+    const li = document.createElement("li");
+    li.className = `page-item ${activa ? "active" : ""} ${deshabilitada ? "disabled" : ""}`;
+    li.innerHTML = `<a class="page-link" href="#">${label}</a>`;
+    li.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (!deshabilitada && pagina !== paginaActual) {
+        paginaActual = pagina;
+        cargarTablaProyectoAsesor();
+      }
+    });
+    return li;
+  };
+
+  paginacion.appendChild(crearItem("« Anterior", paginaActual - 1, false, paginaActual === 1));
+
+  const maxVisible = 5;
+  let start = Math.max(1, paginaActual - 2);
+  let end = Math.min(total, start + maxVisible - 1);
+  if (end - start < maxVisible - 1) {
+    start = Math.max(1, end - maxVisible + 1);
+  }
+
+  for (let i = start; i <= end; i++) {
+    paginacion.appendChild(crearItem(i, i, i === paginaActual));
+  }
+
+  paginacion.appendChild(crearItem("Siguiente »", paginaActual + 1, false, paginaActual === total));
+}
+
+document.getElementById("busquedaProyectoAsesor").addEventListener("input", () => {
+  paginaActual = 1;
+  cargarTablaProyectoAsesor();
+});
+
+document.getElementById("ordenarProyectoAsesor").addEventListener("change", () => {
+  paginaActual = 1;
+  cargarTablaProyectoAsesor();
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  cargarTablaProyectoAsesor();
+  cargarTablaTesisAsesor();
+});
+
+    </script>
 </body>
+
 </html>
