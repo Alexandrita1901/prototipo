@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel Administrador - SISPROT</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+  <style>
+    body {
+      background: #f4f4f4;
+      font-family: "Segoe UI", sans-serif;
+      font-size: 0.85rem;
+    }
+
+    .sidebar {
+      height: 100vh;
+      width: 250px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: linear-gradient(to bottom, #154172, #5a8fc2);
+      color: white;
+      transition: all 0.4s ease;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      padding-top: 10px;
+    }
+
+    .sidebar.collapsed {
+      width: 80px;
+      align-items: center;
+    }
+
+    .sidebar .toggle-sidebar {
+      display: flex;
+      align-items: center;
+      color: white;
+      padding: 15px 20px;
+      text-decoration: none;
+      font-size: 20px;
+      width: 100%;
+      background: transparent;
+      border: none;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar.collapsed .toggle-sidebar {
+      justify-content: center;
+      padding: 15px 0;
+    }
+
+    .sidebar.collapsed .toggle-sidebar .sidebar-text {
+      display: none;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      color: white;
+      padding: 15px 20px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      font-size: 18px;
+      width: 100%;
+    }
+
+    .sidebar a i {
+      font-size: 26px;
+      width: 40px;
+      text-align: center;
+    }
+
+    .sidebar.collapsed a {
+      justify-content: center;
+      padding: 15px 0;
+    }
+
+    .sidebar.collapsed a i {
+      margin: 0 auto;
+    }
+
+    .sidebar.collapsed .sidebar-text {
+      display: none;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+
+    .content {
+      margin-left: 250px;
+      padding: 20px;
+      transition: margin-left 0.4s ease;
+    }
+
+    .content.collapsed {
+      margin-left: 80px;
+    }
+
+    .navbar {
+      margin-left: 250px;
+      background-color: #ffffff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: margin-left 0.4s ease;
+    }
+
+    .navbar.collapsed {
+      margin-left: 80px;
+    }
+
+    .navbar .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .navbar .user-name {
+      text-align: right;
+    }
+
+    .navbar .user-name small {
+      display: block;
+      color: #888;
+    }
+
+    .logo {
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    .dashboard-section {
+      display: none;
+    }
+
+    .dashboard-section.active {
+      display: block;
+    }
+
+    .user-role {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .logout-icon {
+      font-size: 25px;
+      color: #dc3545;
+    }
+
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 80px;
+        align-items: center;
+      }
+
+      .sidebar .sidebar-text {
+        display: none;
+      }
+
+      .sidebar a {
+        justify-content: center;
+        padding: 15px 0;
+      }
+
+      .sidebar a i {
+        margin: 0 auto;
+      }
+
+      .navbar,
+      .content {
+        margin-left: 80px !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px;
+        gap: 10px;
+      }
+
+      .navbar .user-info {
+        align-self: stretch;
+        justify-content: space-between;
+        flex-direction: row;
+      }
+
+      .navbar .user-name {
+        text-align: right;
+      }
+    }
+
+    .dashboard-section canvas {
+      max-height: 220px !important;
+    }
+
+    .subconfiguracion {
+      display: none;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+    }
+
+    .sidebar-subitems {
+      padding-left: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar.collapsed .sidebar-subitems {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const dni = urlParams.get('dni');
+
+    const admin = {
+      '72404819': ' Andrea Alexandra Garcia Gonzales',
+    };
+    const nombreAdmin = admin[dni] || 'Admin';
+    window.addEventListener('DOMContentLoaded', () => {
+      const nombreElemento = document.getElementById('nombreAdmin');
+      if (nombreElemento) {
+        nombreElemento.textContent = nombreAdmin;
+      }
+
+    });
+  </script>
+
+  <div class="sidebar" id="sidebar">
+    <a href="#" class="toggle-sidebar" onclick="toggleSidebar()">
+      <i class="fas fa-bars"></i>
+      <span class="sidebar-text">Menú</span>
+    </a>
+
+    <a href="#" onclick="showSection('usuarios')">
+      <i class="fas fa-users-cog"></i>
+      <span class="sidebar-text">Gestión de Usuarios</span>
+    </a>
+
+    <a href="#" onclick="showSection('proyectos')">
+      <i class="fas fa-file-alt"></i>
+      <span class="sidebar-text">Gestión de Proyectos</span>
+    </a>
+
+    <a href="#" onclick="showSection('reportes')">
+      <i class="fas fa-chart-bar"></i>
+      <span class="sidebar-text">Reportes</span>
+    </a>
+
+    <a href="#" onclick="toggleSubconfigMenu()">
+      <i class="fas fa-cog"></i>
+      <span class="sidebar-text">Configuración</span>
+    </a>
+
+
+    <!-- Submenú colapsable solo visible si sidebar está expandido -->
+    <div class="sidebar-subitems" id="subConfigItems">
+      <a href="#" onclick="mostrarSubconfiguracion('configPermisos')">Permisos por Rol</a>
+      <a href="#" onclick="mostrarSubconfiguracion('configFechas')">Fechas Importantes</a>
+      <a href="#" onclick="mostrarSubconfiguracion('configFormatos')">Plantillas</a>
+      <a href="#" onclick="mostrarSubconfiguracion('configMensajes')">Mensajes</a>
+      <a href="#" onclick="mostrarSubconfiguracion('configNotificaciones')">Notificaciones</a>
+      <a href="#" onclick="mostrarSubconfiguracion('configBackup')">Backup</a>
+    </div>
+
+
+
+  </div>
+
+  <div class="navbar" id="navbar">
+    <div class="d-flex align-items-center">
+      <img src="/img/FCA-UNSM-2021.png" alt="Logo Facultad" class="logo" />
+      <strong style="color: #314663; font-size: 1.2rem;">Sistema de Seguimiento de Proyectos y Tesis</strong>
+    </div>
+    <div class="user-info">
+      <div class="user-name">
+        <strong style="color: #314663" id="nombreAdmin">Admin</strong>
+        <small class="user-role">Admin</small>
+      </div>
+      <a href="#" class="logout-icon" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt"></i></a>
+    </div>
+  </div>
+  </div>
+  <div class="content" id="content">
+
+    <div id="bienvenida" class="dashboard-section active">
+      <h2 class="mb-3" style="color: #314663; font-weight: bold">
+        ¡Bienvenido Administrador!
+      </h2>
+      <p class="fs-6 text-muted">
+             </p>
+    </div>
+
+
+
+    <!-- Sección: Gestión de Usuarios -->
+    <div id="usuarios" class="dashboard-section" style="display: none;">
+      <h4 class="mb-4" style="color: #154172; font-weight: bold; font-size: 1.3rem;"> Gestión de Usuarios del Sistema
+      </h4> <!-- Filtro de Búsqueda -->
+      <div class="row mb-3">
+        <div class="col-md-6"> <input type="text" id="busquedaUsuario" class="form-control"
+            placeholder="Buscar por nombre, rol o DNI..."> </div>
+        <div class="col-md-6 text-end"> <button class="btn" style="background-color: #154172; color: white;"
+            onclick="abrirModalUsuario()"> <i class="fas fa-user-plus me-1"></i> Nuevo Usuario </button> </div>
+      </div> <!-- Tabla de Usuarios -->
+
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+          <thead class="text-center">
+            <tr>
+              <th style="background-color: #276bb8; color: white; width: 40px">N°</th>
+              <th style="background-color: #276bb8; color: white; width: 200px">Nombre Completo</th>
+              <th style="background-color: #276bb8; color: white; width: 100px">Rol</th>
+              <th style="background-color: #276bb8; color: white; width: 100px">DNI</th>
+              <th style="background-color: #276bb8; color: white; width: 200px">Correo</th>
+              <th style="background-color: #276bb8; color: white; width: 100px">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaUsuarios"> <!-- Usuarios cargados dinámicamente --> </tbody>
+        </table>
+      </div> <!-- Paginación -->
+    </div>
+
+    <div id="proyectos" class="dashboard-section" style="display: none;">
+      <h4 class="mb-4" style="color: #154172; font-weight: bold; font-size: 1.3rem;">
+        Gestión de Proyectos de Tesis
+      </h4>
+     
+
+      <!-- Filtro de búsqueda -->
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <input type="text" id="buscarProyecto" class="form-control"
+            placeholder="Buscar por título, tesista o estado...">
+        </div>
+        <select class="form-select w-auto mb-3" id="filtroEstadoProyecto" onchange="filtrarPorEstado()">
+          <option value="">-- Filtrar por Estado --</option>
+          <option>Aprobado</option>
+          <option>En revisión</option>
+          <option>Observado</option>
+          <option>Eliminado</option>
+        </select>
+
+      </div>
+
+      <!-- Tabla de Proyectos -->
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+          <thead class="text-center">
+            <tr>
+              <th style="background-color: #276bb8; color: white">N°</th>
+              <th style="background-color: #276bb8; color: white">Título</th>
+              <th style="background-color: #276bb8; color: white">Tesista</th>
+              <th style="background-color: #276bb8; color: white">Tipo</th>
+              <th style="background-color: #276bb8; color: white">Estado Global</th>
+              <th style="background-color: #276bb8; color: white">Fecha Registro</th>
+              <th style="background-color: #276bb8; color: white">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaProyectos">
+            <!-- Se llena dinámicamente con JS -->
+          </tbody>
+        </table>
+      </div>
+
+
+      <!-- MODAL DE GESTIÓN DE PROYECTO DE TESIS -->
+      <div class="modal fade" id="modalGestionProyecto" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+          <div class="modal-content border-0 shadow-sm">
+
+            <!-- Encabezado -->
+            <div class="modal-header text-white" style="background-color: #154172;">
+              <h5 class="modal-title"><i class="fas fa-clipboard-check me-2"></i>Gestión del Proyecto de Tesis</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Cuerpo -->
+            <div class="modal-body small">
+
+              <!-- Información del Proyecto -->
+              <section class="mb-3 border-bottom pb-3">
+                <h6 class="text-uppercase text-secondary fw-bold">Información del Proyecto</h6>
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <label class="form-label">Título del Proyecto</label>
+                    <input type="text" class="form-control form-control-sm" id="tituloGestion" readonly>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Tesista</label>
+                    <input type="text" class="form-control form-control-sm" id="tesistaGestion" readonly>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Documentos Asociados -->
+              <section class="mb-3 border-bottom pb-3">
+                <h6 class="text-uppercase text-secondary fw-bold">Documentos Asociados</h6>
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <label class="form-label">Proyecto de Tesis (PDF)</label>
+                    <input type="file" class="form-control form-control-sm" id="archivoProyecto" accept=".pdf">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label d-block">Documento Actual</label>
+                    <a href="#" id="linkProyecto" target="_blank" class="btn btn-sm btn-outline-success">
+                      <i class="fas fa-file-download me-1"></i> Ver Proyecto
+                    </a>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Jurado Actual -->
+              <section class="mb-3 border-bottom pb-3">
+                <h6 class="text-uppercase text-secondary fw-bold">Jurado Actual</h6>
+                <div class="row g-2">
+                  <div class="col-md-4">
+                    <label class="form-label">Presidente</label>
+                    <select class="form-select form-select-sm" id="juradoPresidente"></select>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Secretario</label>
+                    <select class="form-select form-select-sm" id="juradoSecretario"></select>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Vocal</label>
+                    <select class="form-select form-select-sm" id="juradoVocal"></select>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Cambios (opcional) -->
+              <section class="mb-3 border-bottom pb-3">
+                <h6 class="text-uppercase text-secondary fw-bold">Gestión de Cambios</h6>
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <label class="form-label">Cambio de Jurado</label>
+                    <input type="file" class="form-control form-control-sm" id="resolucionCambioJurado" accept=".pdf">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Cambio de Asesor</label>
+                    <input type="file" class="form-control form-control-sm" id="resolucionCambioAsesor" accept=".pdf">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Cambio de Título</label>
+                    <input type="file" class="form-control form-control-sm" id="resolucionCambioTitulo" accept=".pdf">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Resolución de Ejecución</label>
+                    <input type="file" class="form-control form-control-sm" id="resolucionEjecucion" accept=".pdf">
+                  </div>
+                  <!-- SOLO PARA TESIS -->
+                  <div class="col-md-12 d-none" id="bloqueAmpliacion">
+                    <label class="form-label">Resolución de Ampliación de Presentación de Tesis</label>
+                    <input type="file" class="form-control form-control-sm" id="resolucionAmpliacionTesis"
+                      accept=".pdf">
+                  </div>
+                </div>
+              </section>
+
+              <!-- Estado del Proyecto -->
+
+
+            </div>
+
+            <!-- Footer de acciones -->
+            <!-- Footer de acciones -->
+            <div class="modal-footer bg-light d-flex justify-between flex-wrap">
+              <button class="btn  btn-sm px-4 ms-auto" onclick="guardarCambiosProyecto()"
+                style="background-color: #154172; color: #ffffff">
+                <i class="fas fa-save me-1"></i> Guardar
+              </button>
+            </div>
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div id="reportes" class="dashboard-section" style="display: none;">
+      <h4 class="mb-4" style="color: #154172; font-weight: bold; font-size: 1.3rem;">
+        Reportes del Sistema
+      </h4>
+      <div class="row">
+        <!-- Indicadores rápidos -->
+        <div class="col-md-4">
+          <div class="card shadow-sm mb-4">
+            <div class="card-body text-center">
+              <h6 class="text-muted">Proyectos Totales</h6>
+              <h3 class="text-primary">45</h3>
+              <i class="fas fa-folder-open fa-2x text-primary"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card shadow-sm mb-4">
+            <div class="card-body text-center">
+              <h6 class="text-muted">Tesis en Proceso</h6>
+              <h3 class="text-warning">18</h3>
+              <i class="fas fa-spinner fa-2x text-warning"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card shadow-sm mb-4">
+            <div class="card-body text-center">
+              <h6 class="text-muted">Tesis Aprobadas</h6>
+              <h3 class="text-success">27</h3>
+              <i class="fas fa-check-circle fa-2x text-success"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Simulación de gráfico (puedes cambiar por Chart.js luego) -->
+      <div class="row">
+        <!-- Tesis por estado -->
+        <div class="col-md-6 mb-4">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h6 class="mb-3 text-primary">Proyectos por Estado</h6>
+              <canvas id="barEstado"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tesis por mes -->
+        <div class="col-md-6 mb-4">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h6 class="mb-3 text-success">Proyectos Registrados por Mes</h6>
+              <canvas id="lineaMeses"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Distribución por tipo -->
+        <div class="col-md-6 mb-4">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h6 class="mb-3 text-warning">Distribución por Tipo</h6>
+              <canvas id="donaTipo"></canvas>
+            </div>
+          </div>
+        </div>
+        <!-- Radar por nivel de avance -->
+
+
+        <!-- Polar por jurado asignado -->
+        <div class="col-md-6 mb-4">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h6 class="mb-3 text-secondary">Tesis por Jurado (Distribución Polar)</h6>
+              <canvas id="polarJurado"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div id="configuracion" class="dashboard-section" style="display: none;">
+      <h4 class="mb-4" style="color: #154172; font-weight: bold; font-size: 1.3rem;">
+        Configuración del Sistema
+      </h4>
+
+      <!-- Aquí van los bloques individuales -->
+      <div id="configPermisos" class="subconfiguracion" style="display: block;">
+        <h6 class="text-primary fw-bold mb-3">Permisos por Rol</h6>
+        <p class="text-muted">Define las acciones que cada tipo de usuario puede realizar en el sistema.</p>
+
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <label class="form-label">Seleccionar Rol</label>
+            <select class="form-select" id="rolSeleccionado" onchange="actualizarPermisos()">
+              <option value="Tesista">Tesista</option>
+              <option value="Jurado">Jurado</option>
+              <option value="Asesor">Asesor</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="permisosRol">
+          <!-- Permisos generales -->
+          <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" id="permisoSubir" checked>
+            <label class="form-check-label" for="permisoSubir">Puede subir documentos</label>
+          </div>
+
+          <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" id="permisoVerObs">
+            <label class="form-check-label" for="permisoVerObs">Puede ver observaciones</label>
+          </div>
+
+          <!-- Permisos adicionales -->
+          <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" id="permisoComentar">
+            <label class="form-check-label" for="permisoComentar">Puede comentar documentos</label>
+          </div>
+
+          <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" id="permisoAprobar">
+            <label class="form-check-label" for="permisoAprobar">Puede aprobar documentos</label>
+          </div>
+
+          <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" id="permisoRechazar">
+            <label class="form-check-label" for="permisoRechazar">Puede rechazar con observaciones</label>
+          </div>
+
+          <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" id="permisoNotificar">
+            <label class="form-check-label" for="permisoNotificar">Puede enviar notificaciones</label>
+          </div>
+
+          <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" id="permisoGestionUsuarios">
+            <label class="form-check-label" for="permisoGestionUsuarios">Puede gestionar usuarios</label>
+          </div>
+        </div>
+
+        <small class="text-muted fst-italic">Los cambios en permisos se aplicarán según el rol
+          seleccionado.</small>
+      </div>
+
+
+      <div id="configFechas" class="subconfiguracion" style="display: none;">
+        <h6 class="text-primary fw-bold mb-3">Fechas por Tesista</h6>
+        <p class="text-muted">Configura las fechas límite y evaluación individual por cada tesista.</p>
+
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover align-middle">
+            <thead class="text-center table-light">
+              <tr>
+                <th>Tesista</th>
+                <th>Ultimo dia Entrega de Infrome Final</th>
+                <th>Fecha de Sustentacion</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaFechasTesistas">
+              <!-- Aquí se llena dinámicamente desde JS -->
+              <tr>
+                <td>Wendy Campos Torres</td>
+                <td><input type="date" class="form-control" value="2025-07-01"></td>
+                <td><input type="date" class="form-control" value="2025-07-15"></td>
+                <td class="text-center">
+                  <button class="btn btn-sm btn-success"><i class="fas fa-save"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <small class="text-muted fst-italic">Los tesistas verán sus fechas asignadas directamente en su panel
+          personal.</small>
+      </div>
+
+
+
+      <div id="configFormatos" class="subconfiguracion" style="display: none;">
+        <h6 class="text-primary fw-bold mb-3">Plantillas y Documentos Base</h6>
+        <p class="text-muted">Carga documentos oficiales que serán utilizados como base para el desarrollo de
+          tesis.</p>
+        <div class="mb-3">
+          <label class="form-label">Plantilla de Tesis</label>
+          <input type="file" class="form-control">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Formato de Observaciones</label>
+          <input type="file" class="form-control">
+        </div>
+        <small class="text-muted fst-italic">Los archivos estarán disponibles para descarga desde el portal del
+          tesista y jurado.</small>
+      </div>
+
+
+
+      <div id="configMensajes" class="subconfiguracion" style="display: none;">
+        <h6 class="text-primary fw-bold mb-3">Mensajes del Sistema</h6>
+        <p class="text-muted">Personaliza mensajes que se mostrarán automáticamente en los paneles según el rol.
+        </p>
+        <div class="mb-3">
+          <label class="form-label">Mensaje para Tesistas</label>
+          <textarea class="form-control" rows="2"
+            placeholder="Ej. Recuerda subir tu documento antes del 15 de junio."></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Mensaje para Jurado</label>
+          <textarea class="form-control" rows="2" placeholder="Ej. Revise las tesis asignadas esta semana."></textarea>
+        </div>
+        <small class="text-muted fst-italic">Los mensajes se mostrarán como alertas informativas en el dashboard
+          correspondiente.</small>
+      </div>
+
+
+
+      <div id="configNotificaciones" class="subconfiguracion" style="display: none;">
+        <h6 class="text-primary fw-bold mb-3">Notificaciones</h6>
+        <p class="text-muted">Activa o desactiva notificaciones automáticas por eventos críticos del sistema.
+        </p>
+        <div class="form-check form-switch mb-2">
+          <input class="form-check-input" type="checkbox" id="notifTesista" checked>
+          <label class="form-check-label" for="notifTesista">Avisar a Tesistas sobre actualizaciones o
+            cambios</label>
+        </div>
+        <div class="form-check form-switch mb-2">
+          <input class="form-check-input" type="checkbox" id="notifJurado">
+          <label class="form-check-label" for="notifJurado">Avisar a Jurados sobre nuevos archivos</label>
+        </div>
+        <small class="text-muted fst-italic">Se envían vía sistema interno o correo institucional si está
+          registrado.</small>
+      </div>
+
+
+      <div id="configBackup" class="subconfiguracion" style="display: none;">
+        <h6 class="text-primary fw-bold mb-3">Backup Manual</h6>
+        <p class="text-muted">Genera una copia de seguridad completa de los registros actuales del sistema.</p>
+        <button class="btn btn-outline-primary" onclick="descargarBackup()">
+          <i class="fas fa-download me-1"></i> Descargar Backup Ahora
+        </button>
+        <small class="text-muted d-block mt-2 fst-italic">Formato de exportación: JSON/CSV. Se recomienda hacer
+          backups semanales.</small>
+      </div>
+
+
+      <div id="usuarios" class="dashboard-section" style="display: none;">
+        <h4 class="mb-4" style="color: #154172; font-weight: bold; font-size: 1.3rem;">
+          Gestión de Usuarios del Sistema
+        </h4>
+
+        <!-- Filtro de Búsqueda -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <input type="text" id="busquedaUsuario" class="form-control" placeholder="Buscar por nombre, rol o DNI...">
+          </div>
+          <div class="col-md-6 text-end">
+            <button class="btn" style="background-color: #154172; color: white;" onclick="abrirModalUsuario()">
+              <i class="fas fa-user-plus me-1"></i> Nuevo Usuario
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabla de Usuarios -->
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover align-middle">
+            <thead class="text-center">
+              <tr>
+                <th style="background-color: #276bb8; color: white; width: 40px">#</th>
+                <th style="background-color: #276bb8; color: white; width: 200px">Nombre Completo</th>
+                <th style="background-color: #276bb8; color: white; width: 100px">Rol</th>
+                <th style="background-color: #276bb8; color: white; width: 100px">DNI</th>
+                <th style="background-color: #276bb8; color: white; width: 200px">Correo</th>
+                <th style="background-color: #276bb8; color: white; width: 100px">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaUsuarios">
+              <!-- Usuarios cargados dinámicamente -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginación -->
+        <div class="d-flex justify-content-end mt-3">
+          <nav>
+            <ul class="pagination mb-0" id="paginacionUsuarios"></ul>
+          </nav>
+        </div>
+      </div>
+
+      </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal: Nuevo Usuario -->
+  <div class="modal fade" id="modalUsuario" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form onsubmit="guardarUsuario(event)">
+          <div class="modal-header" style="background-color: #154172; color: white;">
+            <h5 class="modal-title">Registrar Usuario</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="usuarioIndex">
+            <div class="mb-3">
+              <label for="nombreUsuario" class="form-label">Nombre Completo</label>
+              <input type="text" class="form-control" id="nombreUsuario" required>
+            </div>
+            <div class="mb-3">
+              <label for="rolUsuario" class="form-label">Rol</label>
+              <select class="form-select" id="rolUsuario" required>
+                <option value="Tesista">Tesista</option>
+                <option value="Docente">Docente</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="dniUsuario" class="form-label">DNI</label>
+              <input type="text" class="form-control" id="dniUsuario" required>
+            </div>
+            <div class="mb-3">
+              <label for="correoUsuario" class="form-label">Correo</label>
+              <input type="email" class="form-control" id="correoUsuario" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn" style="background-color: #154172; color: white;">Guardar</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  </div>
+
+
+
+  <script>
+    function showSection(id) {
+      document.querySelectorAll(".dashboard-section").forEach((section) => {
+        section.classList.remove("active");
+        section.style.display = "none";
+      });
+
+      const targetSection = document.getElementById(id);
+      if (targetSection) {
+        targetSection.classList.add("active");
+        targetSection.style.display = "block";
+      }
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      const content = document.getElementById("content");
+      const navbar = document.getElementById("navbar");
+      sidebar.classList.toggle("collapsed");
+      content.classList.toggle("collapsed");
+      navbar.classList.toggle("collapsed");
+    }
+
+    function cerrarSesion() {
+      Swal.fire({
+        icon: "question",
+        title: "¿Cerrar sesión?",
+        showCancelButton: true,
+        confirmButtonText: "Sí",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: "#154172"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          localStorage.clear();
+          window.location.href = "index.html";
+        }
+      });
+    }
+    // Lista simulada de usuarios
+    const usuarios = [
+      { nombre: "Kevin Ramos Pérez", rol: "Tesista", dni: "74599302", correo: "kevin@unsa.edu.pe" },
+      { nombre: "Lucía Guzmán Peña", rol: "Docente", dni: "43248273", correo: "lucia@unsa.edu.pe" },
+    ];
+
+    // Renderizar la tabla de usuarios
+    function renderizarUsuarios() {
+      const tabla = document.getElementById("tablaUsuarios");
+      tabla.innerHTML = "";
+
+      usuarios.forEach((usuario, index) => {
+        tabla.innerHTML += `
+        <tr class="text-center">
+          <td>${index + 1}</td>
+          <td>${usuario.nombre}</td>
+          <td>${usuario.rol}</td>
+          <td>${usuario.dni}</td>
+          <td>${usuario.correo}</td>
+          <td>
+            <button class="btn btn-sm btn-warning me-1" onclick="editarUsuario(${index})">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="eliminarUsuario(${index})">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </td>
+        </tr>
+      `;
+      });
+    }
+
+    // Abrir modal vacío para registrar
+    function abrirModalUsuario() {
+      document.getElementById("usuarioIndex").value = "";
+      document.getElementById("nombreUsuario").value = "";
+      document.getElementById("rolUsuario").value = "Tesista";
+      document.getElementById("dniUsuario").value = "";
+      document.getElementById("correoUsuario").value = "";
+      new bootstrap.Modal(document.getElementById("modalUsuario")).show();
+    }
+
+    // Guardar usuario (nuevo o editado)
+    function guardarUsuario(event) {
+      event.preventDefault();
+      const index = document.getElementById("usuarioIndex").value;
+      const nombre = document.getElementById("nombreUsuario").value.trim();
+      const rol = document.getElementById("rolUsuario").value;
+      const dni = document.getElementById("dniUsuario").value.trim();
+      const correo = document.getElementById("correoUsuario").value.trim();
+
+      const nuevoUsuario = { nombre, rol, dni, correo };
+
+      if (index === "") {
+        usuarios.push(nuevoUsuario); // nuevo
+      } else {
+        usuarios[index] = nuevoUsuario; // editar
+      }
+
+      bootstrap.Modal.getInstance(document.getElementById("modalUsuario")).hide();
+      renderizarUsuarios();
+    }
+
+    // Cargar usuario en modal para edición
+    function editarUsuario(index) {
+      const usuario = usuarios[index];
+      document.getElementById("usuarioIndex").value = index;
+      document.getElementById("nombreUsuario").value = usuario.nombre;
+      document.getElementById("rolUsuario").value = usuario.rol;
+      document.getElementById("dniUsuario").value = usuario.dni;
+      document.getElementById("correoUsuario").value = usuario.correo;
+      new bootstrap.Modal(document.getElementById("modalUsuario")).show();
+    }
+
+    // Eliminar usuario con confirmación
+    function eliminarUsuario(index) {
+      Swal.fire({
+        icon: "warning",
+        title: "¿Eliminar usuario?",
+        text: "Esta acción no se puede deshacer.",
+        showCancelButton: true,
+        confirmButtonColor: "#dc3545",
+        confirmButtonText: "Eliminar",
+        cancelButtonText: "Cancelar"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          usuarios.splice(index, 1);
+          renderizarUsuarios();
+        }
+      });
+    }
+
+    // Mostrar lista al cargar sección
+    window.addEventListener("DOMContentLoaded", renderizarUsuarios);
+
+    // Gráfico de barras: Proyectos por Estado
+    new Chart(document.getElementById("barEstado"), {
+      type: "bar",
+      data: {
+        labels: ["En revisión", "Observado", "Aprobado"],
+        datasets: [{
+          label: "Cantidad de Proyectos",
+          data: [10, 3, 25],
+          backgroundColor: ["#0d6efd", "#ffc107", "#198754"]
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    // Gráfico de líneas: Proyectos por Mes
+    new Chart(document.getElementById("lineaMeses"), {
+      type: "line",
+      data: {
+        labels: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio"],
+        datasets: [{
+          label: "Proyectos Registrados",
+          data: [2, 3, 5, 8, 7, 4],
+          borderColor: "#20c997",
+          backgroundColor: "rgba(32,201,151,0.2)",
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    // Gráfico de dona: Distribución por Tipo de Trabajo
+    new Chart(document.getElementById("donaTipo"), {
+      type: "doughnut",
+      data: {
+        labels: ["Informe de Tesis", "Proyecto de Tesis"],
+        datasets: [{
+          data: [22, 16],
+          backgroundColor: ["#6610f2", "#fd7e14"]
+        }]
+      },
+      options: {
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
+    });
+
+
+    // Gráfico polar: Distribución por jurado
+    new Chart(document.getElementById("polarJurado"), {
+      type: "polarArea",
+      data: {
+        labels: ["Ing. Vásquez", "Ing. Mendoza", "Ing. Peralta", "Ing. Ríos"],
+        datasets: [{
+          data: [12, 8, 7, 11],
+          backgroundColor: ["#20c997", "#0dcaf0", "#ffc107", "#dc3545"]
+        }]
+      },
+      options: {
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
+    });
+
+
+    const proyectos = [
+      {
+        titulo: "Evaluación de suelos en parcelas de cacao",
+        tesista: "Ana Martínez",
+        tipo: "Informe de Tesis",
+        estado: "En revisión",
+        fecha: "2025-05-04"
+
+      },
+      {
+        titulo: "Uso de biol en cultivos de plátano",
+        tesista: "Carlos Huamán",
+        tipo: "Proyecto de Tesis",
+        estado: "Aprobado",
+        fecha: "2025-03-12"
+      }
+    ];
+
+    function renderizarProyectos() {
+      const tbody = document.getElementById("tablaProyectos");
+      tbody.innerHTML = "";
+      proyectos.forEach((p, i) => {
+        tbody.innerHTML += `
+        <tr class="text-center">
+          <td>${i + 1}</td>
+          <td>${p.titulo}</td>
+          <td>${p.tesista}</td>
+          <td>${p.tipo}</td>
+          <td>${p.estado}</td>
+          <td>${p.fecha}</td>
+          <td>
+  <button class="btn btn-sm btn-warning" onclick="gestionarProyecto(${i})"><i class="fas fa-edit"></i></button>
+  <button class="btn btn-sm btn-danger" onclick="eliminarProyecto(${i})"><i class="fas fa-trash"></i></button>
+</td>
+
+        </tr>
+      `;
+      });
+    }
+
+    function gestionarProyecto(i) {
+      const p = proyectos[i];
+      console.log("Abriendo modal para:", p.titulo); // ✅ Verifica que entra
+
+      // Asigna valores
+      document.getElementById("tituloGestion").value = p.titulo;
+      document.getElementById("tesistaGestion").value = p.tesista;
+
+      // Simula archivos
+      document.getElementById("linkProyecto").href = "#";
+
+
+      // ✅ Verifica que el modal exista
+      const modalElement = document.getElementById("modalGestionProyecto");
+      if (!modalElement) {
+        alert("No se encontró el modal 'modalGestionProyecto'");
+        return;
+      }
+
+      // ✅ Muestra el modal
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
+    }
+
+
+
+    function guardarProyecto(event) {
+      event.preventDefault();
+      const i = document.getElementById("proyectoIndex").value;
+      const nuevo = {
+        titulo: document.getElementById("tituloProyecto").value,
+        tesista: document.getElementById("tesistaProyecto").value,
+        tipo: document.getElementById("tipoProyecto").value,
+        estado: document.getElementById("estadoProyecto").value,
+        fecha: document.getElementById("fechaProyecto").value
+      };
+      if (i === "") {
+        proyectos.push(nuevo);
+      } else {
+        proyectos[i] = nuevo;
+      }
+      bootstrap.Modal.getInstance(document.getElementById("modalProyecto")).hide();
+      renderizarProyectos();
+    }
+
+    function editarProyecto(i) {
+      const p = proyectos[i];
+      document.getElementById("proyectoIndex").value = i;
+      document.getElementById("tituloProyecto").value = p.titulo;
+      document.getElementById("tesistaProyecto").value = p.tesista;
+      document.getElementById("tipoProyecto").value = p.tipo;
+      document.getElementById("estadoProyecto").value = p.estado;
+      document.getElementById("fechaProyecto").value = p.fecha;
+      new bootstrap.Modal(document.getElementById("modalProyecto")).show();
+    }
+
+    function eliminarProyecto(i) {
+      Swal.fire({
+        icon: "warning",
+        title: "¿Eliminar proyecto?",
+        text: "Esta acción no se puede deshacer.",
+        showCancelButton: true,
+        confirmButtonColor: "#dc3545",
+        confirmButtonText: "Eliminar",
+        cancelButtonText: "Cancelar"
+      }).then((res) => {
+        if (res.isConfirmed) {
+          proyectos.splice(i, 1);
+          renderizarProyectos();
+        }
+      });
+    }
+
+    // Activar búsqueda
+    document.getElementById("buscarProyecto").addEventListener("input", function () {
+      const valor = this.value.toLowerCase();
+      const filas = document.querySelectorAll("#tablaProyectos tr");
+      filas.forEach(fila => {
+        const texto = fila.textContent.toLowerCase();
+        fila.style.display = texto.includes(valor) ? "" : "none";
+      });
+    });
+
+    window.addEventListener("DOMContentLoaded", renderizarProyectos);
+
+    function mostrarSubconfig(id) {
+      // Mostrar solo el sub-bloque correspondiente
+      document.querySelectorAll(".subconfiguracion").forEach((div) => {
+        div.style.display = "none";
+      });
+
+      document.getElementById("configuracion").style.display = "block";
+      const bloque = document.getElementById(id);
+      if (bloque) {
+        bloque.style.display = "block";
+      }
+    }
+
+    function mostrarSubconfiguracion(idSubconfig) {
+      // Oculta todas las secciones principales primero
+      document.querySelectorAll(".dashboard-section").forEach(seccion => {
+        seccion.style.display = "none";
+        seccion.classList.remove("active");
+      });
+
+      // Muestra la sección de configuración
+      document.getElementById("configuracion").style.display = "block";
+      document.getElementById("configuracion").classList.add("active");
+
+      // Oculta todas las subsecciones de configuración
+      document.querySelectorAll(".subconfiguracion").forEach(sub => {
+        sub.style.display = "none";
+      });
+
+      // Muestra solo la subsección seleccionada
+      const sub = document.getElementById(idSubconfig);
+      if (sub) sub.style.display = "block";
+    }
+    function filtrarPorEstado() {
+      const estado = document.getElementById("filtroEstadoProyecto").value.toLowerCase();
+      const filas = document.querySelectorAll("#tablaProyectos tr");
+
+      filas.forEach(fila => {
+        const textoEstado = fila.children[4].textContent.toLowerCase();
+        fila.style.display = estado === "" || textoEstado === estado ? "" : "none";
+      });
+    }
+
+
+  </script>
+</body>
+
+</html>
