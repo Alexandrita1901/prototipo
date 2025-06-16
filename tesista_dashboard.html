@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SISPROT - Panel del Tesista</title>
+  <title>Panel Tesista - SISPROT</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -134,6 +134,11 @@
       color: #888;
     }
 
+    .logo {
+      height: 40px;
+      margin-right: 10px;
+    }
+
     .dashboard-section {
       display: none;
     }
@@ -231,7 +236,7 @@
       const btnTesis = document.querySelector('a[onclick="showSection(\'tesis\')"]');
       if (dni !== '74599302') {
         btnTesis.style.pointerEvents = 'none';
-        btnTesis.style.opacity = '0.5'; // visualmente inhabilitado
+        btnTesis.style.opacity = '0.5';
       }
 
     });
@@ -280,17 +285,42 @@
 
   <div class="navbar" id="navbar">
     <div class="d-flex align-items-center">
-      <img src="FCA-UNSM-2021.png" alt="Logo Facultad" style="height: 40px; margin-right: 10px;">
-      <strong style="color: #314663; font-size: 1.2rem;">Sistema de Seguimiento de Proyectos y Tesis</strong>
+      <img src="/img/FCA-UNSM-2021.png" alt="Logo Facultad" class="logo" />
+      <strong style="color: #314663; font-size: 1.2rem;">
+        Sistema de Seguimiento de Proyectos y Tesis
+      </strong>
     </div>
-    <div class="user-info">
-      <div class="user-name">
-        <strong style="color: #314663" id="nombreTesista">Tesista</strong>
-        <small class="user-role">Tesista</small>
+
+    <div class="d-flex align-items-center gap-3">
+      <!-- Ícono de campana con contador -->
+      <div class="position-relative me-3">
+        <a href="#" onclick="mostrarNotificaciones(event)" class="text-decoration-none">
+          <i class="fas fa-bell fa-lg text-secondary" style="color: #154172"></i>
+          <span id="notificacionContador"
+            class="badge bg-danger rounded-circle position-absolute top-0 start-100 translate-middle p-1"
+            style="font-size: 0.6rem">0</span>
+        </a>
       </div>
-      <a href="#" class="logout-icon" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt"></i></a>
+      <!-- Panel de notificaciones -->
+      <div id="panelNotificaciones" class="card shadow p-3 position-fixed"
+        style="top: 70px; right: 20px; width: 300px; display: none; z-index: 9999;">
+        <h6 class="fw-bold mb-3" style="color: #154172">Notificaciones</h6>
+        <ul id="listaNotificaciones" class="list-unstyled mb-0" style="max-height: 300px; overflow-y: auto;"></ul>
+      </div>
+
+      <!-- Nombre del usuario -->
+      <div class="user-info">
+        <div class="user-name">
+          <strong style="color: #314663" id="nombreTesista">Tesista</strong>
+          <small class="user-role">Tesista</small>
+        </div>
+        <a href="#" class="logout-icon" onclick="cerrarSesion()">
+          <i class="fas fa-sign-out-alt"></i>
+        </a>
+      </div>
     </div>
   </div>
+
 
   <div class="content" id="content">
     <div id="bienvenida" class="dashboard-section active">
@@ -523,7 +553,8 @@
 
     <!-- REGISTRO DE INFROME FINAL DE TESIS-->
     <div id="tesis" class="dashboard-section" style="display: none;">
-      <h4 class="mb-4" style="color: #154172; font-weight: bold; font-size: 1.3rem;">Registro de Informe Final de Tesis</h4>
+      <h4 class="mb-4" style="color: #154172; font-weight: bold; font-size: 1.3rem;">Registro de Informe Final de Tesis
+      </h4>
       <div class="card shadow-sm border-0">
         <div class="card-body">
           <h5 class="card-title" style="color: #154172"><i class="fas fa-file-alt me-2"></i>
@@ -544,8 +575,7 @@
           </ul>
           <p class="text-muted">
             Para sustentar usted debe contar con el grado de
-            <span
-              style="color: #154172;font-weight: 500;">
+            <span style="color: #154172;font-weight: 500;">
               BACHILLER
             </span>
           </p>
@@ -559,8 +589,7 @@
               background-color: #154172;
               color: white;
               border-radius: 10px;
-              font-weight: 500;"
-              onclick="enviarInformeFinalTesis()">
+              font-weight: 500;" onclick="enviarInformeFinalTesis()">
               <i class="fas fa-paper-plane"></i> Enviar Informe Final
             </button>
             <p class="mt-3 text-muted" style="font-size: 0.9rem">Una vez enviado, será notificado a Decanatura.</p>
@@ -568,34 +597,34 @@
         </div>
       </div>
 
-         <!-- Ayuda -->
-       <div class="my-4"></div>
-        <div class="col-12">
-          <div class="card shadow-sm border-0 bg-light">
-            <div class="card-body">
-              <h6 class="fw-bold" style="color: #154172">
-                ¿Necesitas ayuda con tus archivos?
-              </h6>
-              <ul class="mb-0" style="font-size: 0.85rem">
-                <li>
-                  Unir PDFs:
-                  <a href="https://www.ilovepdf.com/es/unir_pdf" target="_blank">iLovePDF</a>
-                </li>
-                <li>
-                  Convertir Word a PDF:
-                  <a href="https://www.zamzar.com" target="_blank">Zamzar</a>
-                </li>
-                <li>
-                  Comprimir PDF:
-                  <a href="https://www.pdf2go.com/compress-pdf" target="_blank">pdf2go</a>
-                </li>
-              </ul>
-            </div>
+      <!-- Ayuda -->
+      <div class="my-4"></div>
+      <div class="col-12">
+        <div class="card shadow-sm border-0 bg-light">
+          <div class="card-body">
+            <h6 class="fw-bold" style="color: #154172">
+              ¿Necesitas ayuda con tus archivos?
+            </h6>
+            <ul class="mb-0" style="font-size: 0.85rem">
+              <li>
+                Unir PDFs:
+                <a href="https://www.ilovepdf.com/es/unir_pdf" target="_blank">iLovePDF</a>
+              </li>
+              <li>
+                Convertir Word a PDF:
+                <a href="https://www.zamzar.com" target="_blank">Zamzar</a>
+              </li>
+              <li>
+                Comprimir PDF:
+                <a href="https://www.pdf2go.com/compress-pdf" target="_blank">pdf2go</a>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
+    </div>
 
-<!--INFRORME FINAL DE WENDY-->
+    <!--INFRORME FINAL DE WENDY-->
     <div id="Informe_enviado_wendy" class="dashboard-section" style="display: none">
       <h4 class="mb-4" style="color: #154172; font-weight: bold; font-size: 1.3rem;">Tesis</h4>
       <div class="card shadow-sm border-0">
@@ -639,7 +668,7 @@
         </div>
       </div>
     </div>
-<!-- === ALICIA === -->
+    <!-- === ALICIA === -->
     <div id="proyecto_enviado_alicia" class="dashboard-section" style="display: none">
       <h4 class="mb-4" style="color: #154172; font-weight: bold">Proyecto de Tesis Enviado</h4>
       <div class="card shadow-sm border-0">
@@ -820,292 +849,175 @@
     </div>
 
     <!-- SECCIÓN DE COMUNICACIONES -->
-<div id="comunicaciones" class="dashboard-section" style="display: none;">
-  <h4 class="mb-4" style="color: #154172; font-weight: bold; font-size: 1.3rem;">Comunicaciones con Jurados y Asesor</h4>
+    <div id="comunicaciones" class="dashboard-section" style="display: none;">
+      <h4 class="mb-4" style="color: #154172; font-weight: bold; font-size: 1.3rem;">Comunicaciones con Jurados y Asesor
+      </h4>
 
-  <!-- Asesor -->
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-body">
-      <h5 class="card-title" style="color: #154172"><i class="fas fa-user-tie me-2"></i>Asesor</h5>
-      <div class="border rounded p-3" style="background-color: #f8f9fa;">
-        <p class="fw-bold mb-1" style="color: #154172;">Dr. Orlando Ríos Ramírez</p>
-       <p class="mb-1">
-          <i class="fas fa-envelope me-1" style="color: #0056b3;"></i>
-          <a href="mailto:orios@unsm.edu.pe">orios@unsm.edu.pe</a>
-        </p>
-        <p class="mb-0">
-          <i class="fab fa-whatsapp me-1" style="color: #25D366;"></i>
-          <a href="https://wa.me/51979472859" target="_blank">+51 987654321</a>
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Jurados -->
-  <div class="card shadow-sm border-0">
-    <div class="card-body">
-      <h5 class="card-title" style="color: #154172"><i class="fas fa-users me-2"></i>Jurados</h5>
-      <div class="row">
-        <div class="col-md-4">
-          <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
-            <p class="fw-bold mb-1" style="color: #154172;">Dr. Jaime Walter Alvarado Ramírez<br><small>(Presidente)</small></p>
-           <p class="mb-1">
-              <i class="fas fa-envelope me-1" style="color: #0056b3;"></i>
-              <a href="mailto:jwalvarado@unsm.edu.pe">jwalvarado@unsm.edu.pe</a>
-            </p>
-            <p class="mb-0">
-              <i class="fab fa-whatsapp me-1" style="color: #25D366;"></i>
-              <a href="https://wa.me/51912345678" target="_blank">+51 912345678</a>
-            </p>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
-            <p class="fw-bold mb-1" style="color: #154172;">Dr. César Enrique Chappa Santa María<br><small>(Secretario)</small></p>
+      <!-- Asesor -->
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+          <h5 class="card-title" style="color: #154172"><i class="fas fa-user-tie me-2"></i>Asesor</h5>
+          <div class="border rounded p-3" style="background-color: #f8f9fa;">
+            <p class="fw-bold mb-1" style="color: #154172;">Dr. Orlando Ríos Ramírez</p>
             <p class="mb-1">
               <i class="fas fa-envelope me-1" style="color: #0056b3;"></i>
-              <a href="mailto:cechappa@unsm.edu.pe">cechappa@unsm.edu.pe</a>
+              <a href="mailto:orios@unsm.edu.pe">orios@unsm.edu.pe</a>
             </p>
             <p class="mb-0">
               <i class="fab fa-whatsapp me-1" style="color: #25D366;"></i>
-              <a href="https://wa.me/51923456789" target="_blank">+51 923456789</a>
-            </p>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
-            <p class="fw-bold mb-1" style="color: #154172;">Ing. M.Sc. Segundo Darío Maldonado Vásquez<br><small>(Vocal)</small></p>
-            <p class="mb-1">
-              <i class="fas fa-envelope me-1" style="color: #0056b3;"></i>
-              <a href="mailto:sdmaldonado@unsm.edu.pe">sdmaldonado@unsm.edu.pe</a>
-            </p>
-            <p class="mb-0">
-              <i class="fab fa-whatsapp me-1" style="color: #25D366;"></i>
-              <a href="https://wa.me/51934567890" target="_blank">+51 934567890</a>
+              <a href="https://wa.me/51979472859" target="_blank">+51 987654321</a>
             </p>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-</div>
-<div id="configuracion" class="dashboard-section" style="display: none;">
-  <h4 class="mb-4" style="color: #154172; font-weight: bold;">Configuración de Contacto</h4>
 
-  <!-- DATOS ACTUALES -->
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-body">
-      <h5 class="card-title mb-3" style="color: #154172;"><i class="fas fa-id-card me-2"></i>Datos actuales del Tesista</h5>
-      <p class="mb-2" style="color: #154172;"><strong>DNI:</strong> <span class="mb-2">74599302</span></p>
-      <p class="mb-2" style="color: #154172;"><strong>Nombre completo:</strong>a<span class="mb-2" style="color: #3d3d3d;"> Wendy Aliaga Piña</span></p>
-      <p class="mb-2" style="color: #154172;"><strong>Correo electrónico:</strong><span class="mb-2" style="color: #3d3d3d;"> walpi@alumno.unsm.edu.pe</span></p>
-      <p class="mb-0" style="color: #154172;"><strong>Número de celular:</strong><span class="mb-0" style="color: #3d3d3d;"></span> 915756354</p>
-    </div>
-  </div>
-
-  <!-- FORMULARIO PARA ACTUALIZAR CORREO Y CELULAR -->
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-body">
-      <form id="formConfiguracion">
-        <h5 class="mb-3" style="color: #154172;"><i class="fas fa-edit me-2"></i>Actualizar datos de contacto</h5>
-        <div class="mb-3">
-          <label for="correo" class="form-label fw-semibold">Correo electrónico</label>
-          <input type="email" class="form-control" id="correo" required>
+      <!-- Jurados -->
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title" style="color: #154172"><i class="fas fa-users me-2"></i>Jurados</h5>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                <p class="fw-bold mb-1" style="color: #154172;">Dr. Jaime Walter Alvarado
+                  Ramírez<br><small>(Presidente)</small></p>
+                <p class="mb-1">
+                  <i class="fas fa-envelope me-1" style="color: #0056b3;"></i>
+                  <a href="mailto:jwalvarado@unsm.edu.pe">jwalvarado@unsm.edu.pe</a>
+                </p>
+                <p class="mb-0">
+                  <i class="fab fa-whatsapp me-1" style="color: #25D366;"></i>
+                  <a href="https://wa.me/51912345678" target="_blank">+51 912345678</a>
+                </p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                <p class="fw-bold mb-1" style="color: #154172;">Dr. César Enrique Chappa Santa
+                  María<br><small>(Secretario)</small></p>
+                <p class="mb-1">
+                  <i class="fas fa-envelope me-1" style="color: #0056b3;"></i>
+                  <a href="mailto:cechappa@unsm.edu.pe">cechappa@unsm.edu.pe</a>
+                </p>
+                <p class="mb-0">
+                  <i class="fab fa-whatsapp me-1" style="color: #25D366;"></i>
+                  <a href="https://wa.me/51923456789" target="_blank">+51 923456789</a>
+                </p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                <p class="fw-bold mb-1" style="color: #154172;">Ing. M.Sc. Segundo Darío Maldonado
+                  Vásquez<br><small>(Vocal)</small></p>
+                <p class="mb-1">
+                  <i class="fas fa-envelope me-1" style="color: #0056b3;"></i>
+                  <a href="mailto:sdmaldonado@unsm.edu.pe">sdmaldonado@unsm.edu.pe</a>
+                </p>
+                <p class="mb-0">
+                  <i class="fab fa-whatsapp me-1" style="color: #25D366;"></i>
+                  <a href="https://wa.me/51934567890" target="_blank">+51 934567890</a>
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="mb-3">
-          <label for="celular" class="form-label fw-semibold">Número de celular</label>
-          <input type="tel" class="form-control" id="celular" required>
-        </div>
-        <button type="submit" class="btn px-4 py-2" style="background-color: #154172; color: white; border-radius: 10px; font-weight: 500;">
-          <i class="fas fa-save me-1"></i> Guardar Cambios
-        </button>
-      </form>
+      </div>
     </div>
+    <div id="configuracion" class="dashboard-section" style="display: none;">
+      <h4 class="mb-4" style="color: #154172; font-weight: bold;">Configuración de Contacto</h4>
+
+      <!-- DATOS ACTUALES -->
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+          <h5 class="card-title mb-3" style="color: #154172;"><i class="fas fa-id-card me-2"></i>Datos actuales del
+            Tesista</h5>
+          <p class="mb-2" style="color: #154172;"><strong>DNI:</strong> <span class="mb-2">74599302</span></p>
+          <p class="mb-2" style="color: #154172;"><strong>Nombre completo:</strong>a<span class="mb-2"
+              style="color: #3d3d3d;"> Wendy Aliaga Piña</span></p>
+          <p class="mb-2" style="color: #154172;"><strong>Correo electrónico:</strong><span class="mb-2"
+              style="color: #3d3d3d;"> walpi@alumno.unsm.edu.pe</span></p>
+          <p class="mb-0" style="color: #154172;"><strong>Número de celular:</strong><span class="mb-0"
+              style="color: #3d3d3d;"></span> 915756354</p>
+        </div>
+      </div>
+
+      <!-- FORMULARIO PARA ACTUALIZAR CORREO Y CELULAR -->
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+          <form id="formConfiguracion">
+            <h5 class="mb-3" style="color: #154172;"><i class="fas fa-edit me-2"></i>Actualizar datos de contacto</h5>
+            <div class="mb-3">
+              <label for="correo" class="form-label fw-semibold">Correo electrónico</label>
+              <input type="email" class="form-control" id="correo" required>
+            </div>
+            <div class="mb-3">
+              <label for="celular" class="form-label fw-semibold">Número de celular</label>
+              <input type="tel" class="form-control" id="celular" required>
+            </div>
+            <button type="submit" class="btn px-4 py-2"
+              style="background-color: #154172; color: white; border-radius: 10px; font-weight: 500;">
+              <i class="fas fa-save me-1"></i> Guardar Cambios
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- CAMBIO DE CONTRASEÑA -->
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title mb-3" style="color: #154172;"><i class="fas fa-key me-2"></i>Cambiar Contraseña</h5>
+          <form id="formPassword">
+            <div class="mb-3">
+              <label for="nueva" class="form-label fw-semibold">Nueva contraseña</label>
+              <input type="password" class="form-control" id="nueva" required>
+            </div>
+            <div class="mb-3">
+              <label for="confirmar" class="form-label fw-semibold">Confirmar contraseña</label>
+              <input type="password" class="form-control" id="confirmar" required>
+            </div>
+            <button type="submit" class="btn px-4 py-2"
+              style="background-color: #154172; color: white; border-radius: 10px; font-weight: 500;">
+              <i class="fas fa-lock me-1"></i> Cambiar Contraseña
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+
+
   </div>
-
-  <!-- CAMBIO DE CONTRASEÑA -->
-  <div class="card shadow-sm border-0">
-    <div class="card-body">
-      <h5 class="card-title mb-3" style="color: #154172;"><i class="fas fa-key me-2"></i>Cambiar Contraseña</h5>
-      <form id="formPassword">
-        <div class="mb-3">
-          <label for="nueva" class="form-label fw-semibold">Nueva contraseña</label>
-          <input type="password" class="form-control" id="nueva" required>
-        </div>
-        <div class="mb-3">
-          <label for="confirmar" class="form-label fw-semibold">Confirmar contraseña</label>
-          <input type="password" class="form-control" id="confirmar" required>
-        </div>
-        <button type="submit" class="btn px-4 py-2" style="background-color: #154172; color: white; border-radius: 10px; font-weight: 500;">
-          <i class="fas fa-lock me-1"></i> Cambiar Contraseña
-        </button>
-      </form>
-    </div>
   </div>
-</div>
+  <script>
 
-
-
-    </div>
-    </div>
-        <script>
-
-      function showSection(id) {
-        document.querySelectorAll(".dashboard-section").forEach((section) => {
-          section.classList.remove("active");
-          section.style.display = "none";
-        });
-
-        const targetSection = document.getElementById(id);
-        if (targetSection) {
-          targetSection.classList.add("active");
-          targetSection.style.display = "block";
-        }
-      }
-
-      function toggleSidebar() {
-        const sidebar = document.getElementById("sidebar");
-        const content = document.getElementById("content");
-        const navbar = document.getElementById("navbar");
-        sidebar.classList.toggle("collapsed");
-        content.classList.toggle("collapsed");
-        navbar.classList.toggle("collapsed");
-      }
-
-      function irAProyecto() {
-        showSection("proyecto");
-        document.getElementById("bienvenida").classList.remove("active");
-      }
-
-      document.getElementById("formConfiguracion").addEventListener("submit", function (e) {
-        e.preventDefault();
-        Swal.fire({
-          icon: "success",
-          title: "¡Datos actualizados!",
-          text: "Tu información de contacto se guardó correctamente.",
-          confirmButtonColor: "#154172",
-        });
+    function showSection(id) {
+      document.querySelectorAll(".dashboard-section").forEach((section) => {
+        section.classList.remove("active");
+        section.style.display = "none";
       });
 
-      function toggleSidebar() {
-        const sidebar = document.getElementById("sidebar");
-
-
-        if (window.innerWidth <= 768) {
-          sidebar.classList.toggle("active");
-        } else {
-
-          const content = document.getElementById("content");
-          const navbar = document.getElementById("navbar");
-          sidebar.classList.toggle("collapsed");
-          content.classList.toggle("collapsed");
-          navbar.classList.toggle("collapsed");
-        }
-      }
-      function enviarCartaRonda2(event) {
-        event.preventDefault();
-
-        Swal.fire({
-          icon: "success",
-          title: "¡Carta enviada!",
-          text: "El formato de carta ha sido enviado correctamente.",
-          confirmButtonColor: "#154172",
-        }).then(() => {
-          document.getElementById("formRonda2").style.display = "none";
-          document.getElementById("estadoRonda2").style.display = "block";
-        });
-      }
-      function enviarInformeFinalTesis() {
-  const fileInput = document.getElementById("informeFinalTesis");
-  const file = fileInput.files[0];
-
-  if (!file || file.type !== "application/pdf") {
-    Swal.fire({
-      icon: "error",
-      title: "Archivo inválido",
-      text: "Por favor, selecciona un archivo PDF válido.",
-      confirmButtonColor: "#154172"
-    });
-    return;
-  }
-
-  if (file.size > 7 * 1024 * 1024) {
-    Swal.fire({
-      icon: "error",
-      title: "Archivo muy grande",
-      text: "El archivo no debe superar los 7MB.",
-      confirmButtonColor: "#154172"
-    });
-    return;
-  }
-
-  Swal.fire({
-    icon: "success",
-    title: "¡Informe enviado!",
-    text: "Tu informe final ha sido enviado correctamente.",
-    confirmButtonColor: "#154172"
-  }).then(() => {
-    // Oculta todas las secciones
-    document.querySelectorAll(".dashboard-section").forEach((section) => {
-      section.classList.remove("active");
-      section.style.display = "none";
-    });
-
-    // Muestra sección con ID correspondiente
-    const resumen = document.getElementById("Informe_enviado_wendy");
-    if (resumen) {
-      resumen.classList.add("active");
-      resumen.style.display = "block";
-    }
-  });
-
- const datosTesistas = {
-    '74599302': {
-      nombre: 'Wendy Aliaga Piña',
-      correo: 'wealpi@alumno.unsm.edu.pe',
-      celular: '987654321'
-    }
-  };
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const dni = urlParams.get('dni');
-    const datos = datosTesistas[dni];
-
-    if (datos) {
-      // Mostrar en card de resumen
-      const infoDNI = document.getElementById('infoDNI');
-      const infoNombre = document.getElementById('infoNombre');
-      const infoCorreo = document.getElementById('infoCorreo');
-      const infoCelular = document.getElementById('infoCelular');
-
-      if (infoDNI && infoNombre && infoCorreo && infoCelular) {
-        infoDNI.textContent = dni;
-        infoNombre.textContent = datos.nombre;
-        infoCorreo.textContent = datos.correo;
-        infoCelular.textContent = datos.celular;
-      }
-
-      // Mostrar en inputs de edición
-      const correoInput = document.getElementById('correo');
-      const celularInput = document.getElementById('celular');
-      if (correoInput && celularInput) {
-        correoInput.value = datos.correo;
-        celularInput.value = datos.celular;
+      const targetSection = document.getElementById(id);
+      if (targetSection) {
+        targetSection.classList.add("active");
+        targetSection.style.display = "block";
       }
     }
 
-    // Guardar cambios de contacto
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      const content = document.getElementById("content");
+      const navbar = document.getElementById("navbar");
+      sidebar.classList.toggle("collapsed");
+      content.classList.toggle("collapsed");
+      navbar.classList.toggle("collapsed");
+    }
+
+    function irAProyecto() {
+      showSection("proyecto");
+      document.getElementById("bienvenida").classList.remove("active");
+    }
+
     document.getElementById("formConfiguracion").addEventListener("submit", function (e) {
       e.preventDefault();
-
-      const nuevoCorreo = document.getElementById('correo').value;
-      const nuevoCelular = document.getElementById('celular').value;
-
-      // Actualiza en la tarjeta visible
-      document.getElementById('infoCorreo').textContent = nuevoCorreo;
-      document.getElementById('infoCelular').textContent = nuevoCelular;
-
       Swal.fire({
         icon: "success",
         title: "¡Datos actualizados!",
@@ -1114,50 +1026,329 @@
       });
     });
 
-    // Cambio de contraseña
-    document.getElementById("formPassword").addEventListener("submit", function (e) {
-      e.preventDefault();
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
 
-      const nueva = document.getElementById("nueva").value;
-      const confirmar = document.getElementById("confirmar").value;
 
-      if (nueva !== confirmar) {
+      if (window.innerWidth <= 768) {
+        sidebar.classList.toggle("active");
+      } else {
+
+        const content = document.getElementById("content");
+        const navbar = document.getElementById("navbar");
+        sidebar.classList.toggle("collapsed");
+        content.classList.toggle("collapsed");
+        navbar.classList.toggle("collapsed");
+      }
+    }
+    function enviarCartaRonda2(event) {
+      event.preventDefault();
+
+      Swal.fire({
+        icon: "success",
+        title: "¡Carta enviada!",
+        text: "El formato de carta ha sido enviado correctamente.",
+        confirmButtonColor: "#154172",
+      }).then(() => {
+        document.getElementById("formRonda2").style.display = "none";
+        document.getElementById("estadoRonda2").style.display = "block";
+      });
+    }
+    function enviarInformeFinalTesis() {
+      const fileInput = document.getElementById("informeFinalTesis");
+      const file = fileInput.files[0];
+
+      if (!file || file.type !== "application/pdf") {
         Swal.fire({
           icon: "error",
-          title: "Error",
-          text: "Las contraseñas no coinciden.",
-          confirmButtonColor: "#154172",
+          title: "Archivo inválido",
+          text: "Por favor, selecciona un archivo PDF válido.",
+          confirmButtonColor: "#154172"
+        });
+        return;
+      }
+
+      if (file.size > 7 * 1024 * 1024) {
+        Swal.fire({
+          icon: "error",
+          title: "Archivo muy grande",
+          text: "El archivo no debe superar los 7MB.",
+          confirmButtonColor: "#154172"
         });
         return;
       }
 
       Swal.fire({
         icon: "success",
-        title: "¡Contraseña cambiada!",
-        text: "Tu nueva contraseña ha sido actualizada.",
-        confirmButtonColor: "#154172",
+        title: "¡Informe enviado!",
+        text: "Tu informe final ha sido enviado correctamente.",
+        confirmButtonColor: "#154172"
+      }).then(() => {
+        // Oculta todas las secciones
+        document.querySelectorAll(".dashboard-section").forEach((section) => {
+          section.classList.remove("active");
+          section.style.display = "none";
+        });
+
+        // Muestra sección con ID correspondiente
+        const resumen = document.getElementById("Informe_enviado_wendy");
+        if (resumen) {
+          resumen.classList.add("active");
+          resumen.style.display = "block";
+        }
       });
 
-      document.getElementById("nueva").value = '';
-      document.getElementById("confirmar").value = '';
-    });
-  });
-}
-function cerrarSesion() {
-        Swal.fire({
-          icon: "question",
-          title: "¿Cerrar sesión?",
-          showCancelButton: true,
-          confirmButtonText: "Sí",
-          cancelButtonText: "Cancelar",
-          confirmButtonColor: "#154172"
-        }).then((result) => {
-          if (result.isConfirmed) {
-            localStorage.clear();
-            window.location.href = "index.html";
+      const datosTesistas = {
+        '74599302': {
+          nombre: 'Wendy Aliaga Piña',
+          correo: 'wealpi@alumno.unsm.edu.pe',
+          celular: '987654321'
+        }
+      };
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const dni = urlParams.get('dni');
+        const datos = datosTesistas[dni];
+
+        if (datos) {
+          // Mostrar en card de resumen
+          const infoDNI = document.getElementById('infoDNI');
+          const infoNombre = document.getElementById('infoNombre');
+          const infoCorreo = document.getElementById('infoCorreo');
+          const infoCelular = document.getElementById('infoCelular');
+
+          if (infoDNI && infoNombre && infoCorreo && infoCelular) {
+            infoDNI.textContent = dni;
+            infoNombre.textContent = datos.nombre;
+            infoCorreo.textContent = datos.correo;
+            infoCelular.textContent = datos.celular;
           }
+
+          // Mostrar en inputs de edición
+          const correoInput = document.getElementById('correo');
+          const celularInput = document.getElementById('celular');
+          if (correoInput && celularInput) {
+            correoInput.value = datos.correo;
+            celularInput.value = datos.celular;
+          }
+        }
+
+        // Guardar cambios de contacto
+        document.getElementById("formConfiguracion").addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const nuevoCorreo = document.getElementById('correo').value;
+          const nuevoCelular = document.getElementById('celular').value;
+
+          // Actualiza en la tarjeta visible
+          document.getElementById('infoCorreo').textContent = nuevoCorreo;
+          document.getElementById('infoCelular').textContent = nuevoCelular;
+
+          Swal.fire({
+            icon: "success",
+            title: "¡Datos actualizados!",
+            text: "Tu información de contacto se guardó correctamente.",
+            confirmButtonColor: "#154172",
+          });
+        });
+
+        // Cambio de contraseña
+        document.getElementById("formPassword").addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const nueva = document.getElementById("nueva").value;
+          const confirmar = document.getElementById("confirmar").value;
+
+          if (nueva !== confirmar) {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "Las contraseñas no coinciden.",
+              confirmButtonColor: "#154172",
+            });
+            return;
+          }
+
+          Swal.fire({
+            icon: "success",
+            title: "¡Contraseña cambiada!",
+            text: "Tu nueva contraseña ha sido actualizada.",
+            confirmButtonColor: "#154172",
+          });
+
+          document.getElementById("nueva").value = '';
+          document.getElementById("confirmar").value = '';
+        });
+      });
+    }
+    function cerrarSesion() {
+      Swal.fire({
+        icon: "question",
+        title: "¿Cerrar sesión?",
+        showCancelButton: true,
+        confirmButtonText: "Sí",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: "#154172"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          localStorage.clear();
+          window.location.href = "index.html";
+        }
+      });
+    }
+
+
+    // Simulación de notificaciones por usuario
+
+    const notificacionesMock = {
+      "74599302": [
+        {
+          "mensaje": "El jurado Dr. Jaime Walter Alvarado Ramírez aprobó tu proyecto de tesis.",
+          "fecha": "2025-06-10T09:00:00Z"
+        },
+        {
+          "mensaje": "El jurado Dr. César Enrique Chappa Santa María aprobó tu proyecto de tesis.",
+          "fecha": "2025-06-10T10:00:00Z"
+        },
+        {
+          "mensaje": "El jurado Ing. M.Sc. Segundo Darío Maldonado Vásquez aprobó tu proyecto de tesis.",
+          "fecha": "2025-06-10T11:00:00Z"
+        },
+        {
+          "mensaje": "Todos los jurados han aprobado tu proyecto. Se ha emitido la resolución correspondiente.",
+          "fecha": "2025-06-12T09:23:00Z"
+        },
+        {
+          "mensaje": "El jurado Dr. Jaime Walter Alvarado Ramírez aprobó tu tesis.",
+          "fecha": "2025-06-13T09:00:00Z"
+        },
+        {
+          "mensaje": "El jurado Dr. César Enrique Chappa Santa María aprobó tu tesis.",
+          "fecha": "2025-06-13T09:30:00Z"
+        },
+        {
+          "mensaje": "El jurado Ing. M.Sc. Segundo Darío Maldonado Vásquez aprobó tu tesis.",
+          "fecha": "2025-06-13T10:00:00Z"
+        },
+        {
+          "mensaje": "Todos los jurados han aprobado tu tesis. Estás a la espera de ser declarada expedita.",
+          "fecha": "2025-06-13T11:02:00Z"
+        }
+      ],
+      "76132264": [
+        {
+          "mensaje": "Tu proyecto de tesis fue enviado y está en revisión por los jurados.",
+          "fecha": "2025-06-13T08:00:00Z"
+        }
+      ],
+      "72322598": [
+        {
+          "mensaje": "El jurado Dr. Jaime Walter Alvarado Ramírez aprobó tu proyecto de tesis.",
+          "fecha": "2025-04-15T09:00:00Z"
+        },
+        {
+          "mensaje": "El jurado Ing. M.Sc. Jorge Luis Peláez Rivera te envió observaciones sobre tu proyecto.",
+          "fecha": "2025-04-15T10:00:00Z"
+        },
+        {
+          "mensaje": "El jurado Ing. Eybis José Flores García te envió observaciones sobre tu proyecto.",
+          "fecha": "2025-04-15T10:30:00Z"
+        },
+        {
+          "mensaje": "El jurado Ing. M.Sc. Jorge Luis Peláez Rivera te envió nuevas observaciones tras tu respuesta.",
+          "fecha": "2025-04-22T09:30:00Z"
+        },
+        {
+          "mensaje": "El jurado Ing. Eybis José Flores García aprobó tu proyecto de tesis.",
+          "fecha": "2025-04-28T11:00:00Z"
+        },
+        {
+          "mensaje": "El jurado Ing. M.Sc. Jorge Luis Peláez Rivera aprobó tu proyecto de tesis.",
+          "fecha": "2025-05-05T10:00:00Z"
+        },
+        {
+          "mensaje": "Todos los jurados han aprobado tu proyecto de tesis. Se emitirá la resolución correspondiente.",
+          "fecha": "2025-05-06T08:00:00Z"
+        }
+      ],
+      "71272935": [
+        {
+          "mensaje": "El jurado Dr. Agustín Cerna Mendoza aprobó tu proyecto de tesis.",
+          "fecha": "2025-03-12T08:30:00Z"
+        },
+        {
+          "mensaje": "El jurado Ing. M.Sc. Manuel Santiago Doria Bolaños te envió observaciones sobre tu proyecto.",
+          "fecha": "2025-03-12T09:00:00Z"
+        },
+        {
+          "mensaje": "El jurado Blgo. M.Sc. Oscar Rojas Sánchez te envió observaciones sobre tu proyecto.",
+          "fecha": "2025-03-12T09:15:00Z"
+        },
+        {
+          "mensaje": "Enviaste tus respuestas a las observaciones del jurado Ing. Manuel Santiago Doria Bolaños.",
+          "fecha": "2025-03-18T10:00:00Z"
+        },
+        {
+          "mensaje": "El jurado Blgo. M.Sc. Oscar Rojas Sánchez aprobó tu proyecto de tesis.",
+          "fecha": "2025-03-20T11:00:00Z"
+        },
+        {
+          "mensaje": "El jurado Ing. M.Sc. Manuel Santiago Doria Bolaños te envió nuevas observaciones. Aún está en revisión.",
+          "fecha": "2025-03-25T12:00:00Z"
+        }
+      ]
+
+    };
+
+    function obtenerDniDesdeURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('dni') || "74599302";
+    }
+
+    const usuarioId = obtenerDniDesdeURL();
+
+    function cargarNotificaciones() {
+      const notificaciones = notificacionesMock[usuarioId] || [];
+      document.getElementById('notificacionContador').innerText = notificaciones.length;
+
+      const lista = document.getElementById('listaNotificaciones');
+      lista.innerHTML = '';
+
+      if (notificaciones.length === 0) {
+        lista.innerHTML = '<li class="text-muted small">No hay notificaciones</li>';
+      } else {
+        notificaciones.forEach(noti => {
+          const item = document.createElement('li');
+          item.className = 'mb-2 border-bottom pb-2';
+          item.innerHTML = `
+          <i class="fas fa-envelope me-2" style="color: #154172"></i>
+          <span style="font-size: 0.85rem;">${noti.mensaje}</span><br>
+          <small class="text-muted">${new Date(noti.fecha).toLocaleString()}</small>
+        `;
+          lista.appendChild(item);
         });
       }
+    }
+
+    function mostrarNotificaciones(event) {
+      event.preventDefault();
+      const panel = document.getElementById('panelNotificaciones');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // Ocultar al hacer clic fuera
+    window.addEventListener('click', function (e) {
+      const panel = document.getElementById('panelNotificaciones');
+      const bell = e.target.closest('a');
+      if (!panel.contains(e.target) && !bell?.onclick?.toString().includes("mostrarNotificaciones")) {
+        panel.style.display = 'none';
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', cargarNotificaciones);
+
   </script>
 </body>
+
 </html>
